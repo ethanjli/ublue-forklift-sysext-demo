@@ -49,6 +49,7 @@ else
   # TODO(ethanjli): mark the next staged pallet as having failed to be applied
 fi
 
+echo "Updating systemd..."
 systemd-sysext refresh
 systemctl daemon-reload
 # This was shamelessly ripped from https://www.youtube.com/watch?t=1087&v=EMH8_97OAPg:
@@ -58,6 +59,7 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # I'll just stick with what Flatcar Container Linux uses/used, tyvm)
 
 if [ -f /var/run/docker.sock ]; then
+  echo "Docker Compose apps..."
   forklift stage apply
 else
   # TODO(ethanjli): run `forklift stage apply --no-docker` or something
