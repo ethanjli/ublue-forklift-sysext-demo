@@ -132,10 +132,11 @@ see that a new service has run as part of boot if you run
 `systemctl status hello-world.service`.
 
 You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the
-`forklift pallet switch` command. Each time you run `forklift pallet switch` or
-`forklift pallet stage`, forklift will create a new staged pallet bundle in the stage store. You can
-query and modify the state of your stage store with `forklift stage show` and with other subcommands
-of `forklift stage`.
+`forklift pallet switch` command; it will totally replace the contents of
+`~/.local/share/forklift/pallet` and create a new staged pallet bundle in the stage store. Each time
+you run `forklift pallet switch` or `forklift pallet stage`, forklift will create a new staged
+pallet bundle in the stage store. You can query and modify the state of your stage store with
+`forklift stage show` and with other subcommands of `forklift stage`.
 
 ### Modify a pallet and use it
 
@@ -157,20 +158,17 @@ will all be deleted/overwritten and replaced with the pallet you're switching to
   files across staged pallet bundles in Forklift's stage store (though I would be interested in
   supporting use of OCI images rather than Git repos to distribute Forklift repos & pallets as well
   as external/online, in which case deduplication of large sysext images could be feasible).
-- Forklift is a large binary (~20 MB compressed, ~60 MB uncompressed) because it's also designed as
-  a tool to manage all Docker Compose apps deployed on a system, and the fastest/easiest way to
-  implement that was by including github.com/docker/compose/v2 as libraries which I use. Making
-  Forklift smaller is not a priority for me in the foreseeable future, but it would be nice to do
-  eventually if it doesn't add too much complexity.
-- To keep Forklift simple for my primary use-case for it and flexible for maintainers of custom OS
-  images to use according to their needs, I currently do not plan to have Forklift manage FS mounts
-  itself. So the workflow to change the sysexts on the system will always involve either:
+- To keep Forklift simple for my primary use-case for it and to keep it flexible for maintainers of
+  custom OS images to use according to their needs, I currently do not plan to have Forklift manage
+  FS mounts itself. So the workflow to change the sysexts on the system will (probably) always
+  involve modifying the local pallet (and then running `forklift pallet stage`) or totally replacing
+  the local pallet from a remote source, then either:
 
-    1. Modifying the local pallet, then running `forklift pallet stage`, and then rebooting (on a
-       custom OS image which integrates Forklift with `/var/lib/extensions`), or
-    2. Modifying the local pallet, then running `forklift pallet stage`, and then running some other
-       command/script which re-mounts `/var/lib/extensions` and then reloads systemd's view of the
-       sysexts.
+    1. rebooting (on a custom OS image which integrates Forklift with `/var/lib/extensions` and
+       `/var/lib/confexts`, such as this repo's OS image); or
+    2. running some other command/script which re-mounts `/var/lib/extensions` and
+       `/var/lib/confexts` and then reloads systemd's view of the sysexts (such as the
+       `/usr/bin/forklift-stage-apply-systemd` script provided by this repo's OS image).
 
   I'm interested in the following possibilities:
 
@@ -192,3 +190,8 @@ will all be deleted/overwritten and replaced with the pallet you're switching to
   file browser to manually create the necessary files. This means Forklift doesn't yet have a CLI
   equivalent of `systemctl enable (unit)`. I plan to eventually add some sort of CLI for that
   workflow.
+- Forklift is a large binary (~20 MB compressed, ~60 MB uncompressed) because it's also designed as
+  a tool to manage all Docker Compose apps deployed on a system, and the fastest/easiest way to
+  implement that was by including github.com/docker/compose/v2 as libraries which I use. Making
+  Forklift smaller is not a priority for me in the foreseeable future, but it would be nice to do
+  eventually if it doesn't add too much complexity.

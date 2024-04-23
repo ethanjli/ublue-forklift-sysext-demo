@@ -148,3 +148,29 @@ jobs:
           TAGS: ${{ steps.push.outputs.digest }}
           COSIGN_EXPERIMENTAL: false
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+
+      - name: Build ISOs
+        uses: jasonn3/build-container-installer@v1.2.0
+        id: build
+        with:
+          arch: x86_64
+          image_name: ${{ env.MY_IMAGE_NAME }}
+          image_repo: ${{ env.IMAGE_REGISTRY }}
+          variant: base
+          version: 40
+          image_tag: "latest"
+          iso_name: ${{ env.MY_IMAGE_NAME }}.latest }}.iso
+          enable_cache_dnf: "false"
+          enable_cache_skopeo: "false"
+
+      - name: Upload ISOs and Checksum to Job Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}-CHECKSUM
+          if-no-files-found: error
+          retention-days: 0
+          compression-level: 0
+          overwrite: true
