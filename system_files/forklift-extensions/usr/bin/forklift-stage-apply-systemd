@@ -21,10 +21,10 @@ CONFEXT_TARGET="/var/lib/confexts"
 # provide extensions as part of the base OS container image outside of Forklift)
 
 if mountpoint -q "$SYSEXT_TARGET"; then
-  umount "$SYSEXT_TARGET"
+  umount -L "$SYSEXT_TARGET"
 fi
 if mountpoint -q "$CONFEXT_TARGET"; then
-  umount "$CONFEXT_TARGET"
+  umount -L "$CONFEXT_TARGET"
 fi
 
 if [ -d $NEXT_BUNDLE_EXTENSIONS ]; then
@@ -46,6 +46,7 @@ if [ -d $NEXT_BUNDLE_EXTENSIONS ]; then
 else
   echo "Warning: the staged pallet bundle does not export any systemd extensions!"
   echo "We'll leave $SYSEXT_TARGET and $CONFEXT_TARGET as regular directories without bind mounts."
+  # TODO(ethanjli): mark the next staged pallet as having failed to be applied
 fi
 
 systemd-sysext refresh
@@ -56,5 +57,8 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # consequences of doing so; but I'm personally not sure I fully understand those consequences, so
 # I'll just stick with what Flatcar Container Linux uses/used, tyvm)
 
-# TODO(ethanjli): since we don't care about Docker Compose apps, mark the next staged pallet as
-# having been successfully applied
+if [ -f /var/run/docker.sock ]; then
+  forklift stage apply
+else
+  # TODO(ethanjli): run `forklift stage apply --no-docker` or something
+fi

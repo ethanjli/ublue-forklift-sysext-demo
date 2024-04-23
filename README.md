@@ -10,10 +10,83 @@ This repository provides a simple command-line-only demo for integrating
 in a Fedora OSTree-based system meant to be run in a VM. To keep this demo small enough that you
 don't try to rely on it for serious use, the OS image does not include a graphical desktop
 environment (actually I was hoping that layering my OS image off of
-<https://quay.io/repository/fedora-ostree-desktops/base> would enable me to generate an installer
-ISO less than 2 GB so that I could upload it as an attachment to GitHub Releases, but
-the [JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
+[ghcr.io/ublue-os/base-main](https://github.com/ublue-os/main/pkgs/container/base-main)
+would enable me to generate an installer ISO less than 2 GB so that I could upload it as an
+attachment to GitHub Releases, but the
+[JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
 makes a 2.8 GB installer anyways 🥲).
+
+# Usage
+
+(the guide below refers to terms specific to Forklift; you can jump down to the
+[Explanation](#explanation) section to read a long summary of what those terms mean)
+
+## Set up your VM
+
+You will need to download the latest version of the installer ISO. To do so, go to
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions>, click on the most recent workflow
+run which completed successfully, and download the `ublue-forklift-sysext-demo-latest.zip` artifact
+from it (the download should be ~2.8 GB). The ZIP file contains the installer ISO file; you should
+extract the ISO file, create a new VM with it, and go through the installer; make sure to create a
+user for yourself.
+
+After you finish installation, restart the VM, and log in, then you should run:
+
+```
+mkdir -p $HOME/.local/share/forklift/stages
+sudo mkdir -p /var/lib/forklift
+sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
+sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service
+```
+
+These commands will enable you to run `forklift pallet switch` (or `forklift pallet stage`) commands
+(described below) without using `sudo -E` and without having to specify
+`FORKLIFT_STAGE_STORE=var/lib/forklift/stages` as an environment variable for
+`sudo -E forklift pallet switch` (or `sudo -E forklift pallet stage`) commands.
+
+If you run `systemd-sysext status`, you can confirm that there are no sysexts/confexts yet on your
+system.
+
+## Use a pallet
+
+This VM image comes without a Forklift pallet on your first boot, so that you can learn how to use a
+pallet. This guide will use the pallet at the latest commit from the `main` branch of
+[github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports)
+and apply it to your VM, but you can make your own pallet and use it instead.
+
+To clone and stage the pallet, just run:
+
+```
+forklift pallet switch github.com/ethanjli/pallet-example-exports@main
+```
+
+(Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
+saved!!) The `forklift pallet switch` command is intended to feel roughly familiar/intuitive to
+people who use `bootc switch`. Then you should reboot (or, if you're really *really* impatient and
+don't want to reboot) run `sudo forklift-stage-apply-systemd`.
+
+You should then see new extensions if you run `systemd-sysext status`. You should also see that a
+new service has just run, if you check its status with
+`systemctl status hello-world-extension.service`. You should also see a script at
+`/usr/bin/hello-world-extension`.
+
+You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the
+`forklift pallet switch` command; it will totally replace the contents of
+`~/.local/share/forklift/pallet` and create a new staged pallet bundle in the stage store. Each time
+you run `forklift pallet switch` or `forklift pallet stage`, forklift will create a new staged
+pallet bundle in the stage store. You can query and modify the state of your stage store with
+`forklift stage show` and with other subcommands of `forklift stage`.
+
+## Modify a pallet and use it
+
+There will be a nicer CLI workflow in the future for modifying pallets, but for now in order to
+modify your local copy of the pallet you should directly edit files in the Git repo which is your
+pallet. Then you can run `forklift pallet stage` (and reboot again or run `forklift-apply-systemd`)
+to preview it. Warning: if you have changes which you haven't pushed up to GitHub/etc. and then
+you run `forklift pallet switch {pallet-path}@{version-query}`, your modifications to your pallet
+will all be deleted/overwritten and replaced with the pallet you're switching to!
+
+# Explanation
 
 ## What is Forklift?
 
@@ -64,75 +137,30 @@ a read-only bind-mount between
 `/var/lib/forklift/stages/{id of the staged pallet bundle to apply}/exports/extensions` and
 `/var/lib/extensions` (and likewise for `/var/lib/confexts`).
 
-# Usage
+## What does `forklift pallet switch` do?
 
-## Set up your VM
-
-You will need to download the latest version of the installer ISO. To do so, go to
-<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions>, click on the most recent workflow
-run which completed successfully, and download the `ublue-forklift-sysext-demo-latest.iso` artifact
-from it (the download should be ~2.8 GB). It will download an ZIP archive which contains the actual
-ISO file; you should extract the ISO file from within the ISO archive, then create a
-new VM with that installer ISO, and go through the installer; make sure to create a user for
-yourself.
-
-After starting the VM and logging in, you should run:
-
-```
-mkdir -p $HOME/.local/share/forklift/stages
-sudo mkdir -p /var/lib/forklift
-sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
-sudo systemctl enable bind-.local-share-forklift-stages@home-$USER.service
-```
-
-This will enable you to run `forklift pallet switch` (or `forklift pallet stage`) commands
-(described below) without using `sudo -E` and without having to specify
-`FORKLIFT_STAGE_STORE=var/lib/forklift/stages` as an environment variable for
-`forklift pallet switch` (or `forklift pallet stage`) commands.
-
-If you run `systemd-sysext status`, you can confirm that there are no sysexts/confexts yet on your
-system.
-
-## Use a pallet
-
-This VM image comes without a Forklift pallet on your first boot, so that you can learn how to use a
-pallet. This guide will use the pallet at the latest commit from the `main` branch of
-[github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports)
-and apply it to your VM, but you can make your own pallet and use it instead.
-
-To clone and stage the pallet, just run:
-
-```
-forklift pallet switch github.com/ethanjli/pallet-example-exports@main
-```
-
-(Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
-saved!!) The `forklift pallet switch` command is intended to feel roughly familiar/intuitive to
-people who use `bootc switch`. Behind-the-scenes, it will:
+Behind-the-scenes, running `forklift pallet switch {path of pallet}@{version query}` will:
 
 1. Clone the pallet as a Git repository to a local copy at `~/.local/share/forklift/pallet`, and
    check out the latest commit of the `main` branch; if anything was previously at
    `~/.local/share/forklift/pallet`, it's deleted beforehand (note: I recently modified Forklift to
-   delete `~/.local/share/forklift/pallet/.git` afterwards, but I plan to revert that behavior).
+   delete `~/.local/share/forklift/pallet/.git` after cloning, but I plan to revert that behavior).
    This step can also be run on its own with
-   `forklift pallet clone --force github.com/ethanjli/pallet-example-exports@main`.
+   `forklift pallet clone --force {path of pallet}@{version query}`.
 2. Download any external Forklift repositories required by the pallet into
-   `~/.cache/forklift/repositories`; our pallet doesn't require any external repositories, and
-   instead deploys packages defined within itself (since our pallet is also a Forklift repository) -
-   so this step has no consequences for our demo.
+   `~/.cache/forklift/repositories`.
    This step can also be run on its own with `forklift pallet cache-repo`.
 3. Run some checks to ensure that the pallet is valid, e.g. that deployed packages don't conflict
-   with each other. Our pallet doesn't have any conflicting package deployments, because it doesn't
-   deploy multiple packages which all try to export files at the same target paths - so this step
-   has no consequences for our demo.
+   with each other.
    This step can also be run on its own with `forklift pallet check`.
 4. Stage the pallet to be used on the next reboot, by creating a new staged pallet bundle in
    `~/.local/share/forklift/stages` (which, in this OS image, is attached to
-   `/var/lib/forklift/stages` via a bind-mount).
+   `/var/lib/forklift/stages` via a bind-mount created as part of the VM setup process).
    This step can also be run on its own with `forklift pallet stage`.
 
-Then you should reboot (or, if you're really *really* impatient and don't want to reboot) run the
-`forklift-stage-apply-systemd` script with `sudo`, which will:
+## What does the `forklift-stage-apply-systemd` script do?
+
+This script is run as part of early (or early-ish) boot every time the OS boots up. It will:
 
 1. Query Forklift to determine the path of the next staged pallet bundle to be applied. This path
    will be a subdirectory of `/var/lib/forklift/stages`.
@@ -151,26 +179,6 @@ Then you should reboot (or, if you're really *really* impatient and don't want t
    it won't be garbage-collected if you run `forklift stage prune-bundles` to clean up Forklift's
    stage store).
 
-You should then see new extensions if you run `systemd-sysext status`. On your next reboot, you'll
-see that a new service has run as part of boot if you run
-`systemctl status hello-world-extension.service`. You should also see a script at
-`/usr/bin/hello-world-extension`.
-
-You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the
-`forklift pallet switch` command; it will totally replace the contents of
-`~/.local/share/forklift/pallet` and create a new staged pallet bundle in the stage store. Each time
-you run `forklift pallet switch` or `forklift pallet stage`, forklift will create a new staged
-pallet bundle in the stage store. You can query and modify the state of your stage store with
-`forklift stage show` and with other subcommands of `forklift stage`.
-
-## Modify a pallet and use it
-
-There will be a nicer CLI workflow in the future for modifying pallets, but for now in order to
-modify your local copy of the pallet you should directly edit files in the Git repo which is your
-pallet. Then you can run `forklift pallet stage` (and reboot again or run `forklift-apply-systemd`)
-to preview it. Warning: if you have changes which you haven't pushed up to GitHub/etc. and then
-you run `forklift pallet switch {pallet-path}@{version-query}`, your modifications to your pallet
-will all be deleted/overwritten and replaced with the pallet you're switching to!
 
 # Caveats/Limitations
 
