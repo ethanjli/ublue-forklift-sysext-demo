@@ -151,7 +151,7 @@ jobs:
 
       - name: Build ISOs
         uses: jasonn3/build-container-installer@v1.2.0
-        id: build
+        id: build_iso
         with:
           arch: x86_64
           image_name: ${{ env.MY_IMAGE_NAME }}
@@ -163,13 +163,11 @@ jobs:
           enable_cache_dnf: "false"
           enable_cache_skopeo: "false"
 
-      - name: Upload ISOs and Checksum to Job Artifacts
+      - name: Upload ISO to Job Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.build.outputs.iso_name }}
-          path: |
-            ${{ steps.build.outputs.iso_path }}
-            ${{ steps.build.outputs.iso_path }}-CHECKSUM
+          name: ${{ steps.build_iso.outputs.iso_name }}
+          path: ${{ steps.build_iso.outputs.iso_path }}
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
