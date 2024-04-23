@@ -1,13 +1,11 @@
 #!/bin/bash -eu
 
 # By default, Forklift loads its stage store from ~/.local/share/forklift/stages; that is not
-# necessarily accessible during early-ish system bootup, so we use a directory in /var instead;
-# the FORKLIFT_STAGE_STORE environment variable is read by forklift:
+# necessarily accessible during early-ish system bootup, so we use a directory in /var instead:
 FORKLIFT_STAGE_STORE=/var/lib/forklift/stages
-
-NEXT_BUNDLE="$(forklift stage locate-bundle next)"
+NEXT_BUNDLE="$(forklift --stage-store="$FORKLIFT_STAGE_STORE" stage locate-bundle next)"
 echo "The next staged pallet bundle to be applied is: $NEXT_BUNDLE"
-NEXT_BUNDLE_EXTENSIONS="$(forklift stage locate-bundle next)/exports/extensions"
+NEXT_BUNDLE_EXTENSIONS="$NEXT_BUNDLE/exports/extensions"
 
 # Note: there's no reason we can't use any of the other allowed directories for sysexts &
 # confexts; I chose these ones because the systemd docs describe these as the primary places for
@@ -56,6 +54,7 @@ systemctl daemon-reload
 systemctl restart --no-block sockets.target timers.target multi-user.target default.target
 # (you could probably use `systemctl isolate multi-user.target` instead if you understood the
 # consequences of doing so; but I'm personally not sure I fully understand those consequences, so
-# I'll just stick with what Flatcar Container Linux uses/used, tyvm):
+# I'll just stick with what Flatcar Container Linux uses/used, tyvm)
 
-forklift stage apply
+# TODO(ethanjli): since we don't care about Docker Compose apps, mark the next staged pallet as
+# having been successfully applied

@@ -79,6 +79,9 @@ yourself.
 After starting the VM and logging in, you should run:
 
 ```
+mkdir -p $HOME/.local/share/forklift/stages
+sudo mkdir -p /var/lib/forklift
+sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
 sudo systemctl enable bind-.local-share-forklift-stages@home-$USER.service
 ```
 
