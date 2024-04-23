@@ -159,7 +159,7 @@ jobs:
           variant: base
           version: 40
           image_tag: "latest"
-          iso_name: ${{ env.MY_IMAGE_NAME }}.latest }}.iso
+          iso_name: ${{ env.MY_IMAGE_NAME }}-latest.iso
           enable_cache_dnf: "false"
           enable_cache_skopeo: "false"
 
