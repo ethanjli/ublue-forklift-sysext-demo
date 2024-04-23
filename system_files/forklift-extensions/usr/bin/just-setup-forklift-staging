@@ -1,0 +1,6 @@
+#!/bin/bash -eux
+
+mkdir -p $HOME/.local/share/forklift/stages
+sudo mkdir -p /var/lib/forklift
+sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
+sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service

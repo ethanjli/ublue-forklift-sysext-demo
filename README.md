@@ -30,16 +30,13 @@ from it (the download should be ~2.8 GB). The ZIP file contains the installer IS
 extract the ISO file, create a new VM with it, and go through the installer; make sure to create a
 user for yourself.
 
-After you finish installation, restart the VM, and log in, then you should run:
+After you finish installation, restart the VM, and log in, then you should run (without `sudo`!):
 
 ```
-mkdir -p $HOME/.local/share/forklift/stages
-sudo mkdir -p /var/lib/forklift
-sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
-sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service
+just-setup-forklift-staging
 ```
 
-These commands will enable you to run `forklift pallet switch` (or `forklift pallet stage`) commands
+That command will enable you to run `forklift pallet switch` (or `forklift pallet stage`) commands
 (described below) without using `sudo -E` and without having to specify
 `FORKLIFT_STAGE_STORE=var/lib/forklift/stages` as an environment variable for
 `sudo -E forklift pallet switch` (or `sudo -E forklift pallet stage`) commands.

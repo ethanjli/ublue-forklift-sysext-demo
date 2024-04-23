@@ -5,9 +5,9 @@ set -ouex pipefail
 RELEASE="$(rpm -E %fedora)"
 ARCH="$(arch)"
 
-### Install a terminal multiplexer:
+### Install a terminal multiplexer to help with any troubleshooting:
 
-rpm-ostree install screen tmux
+rpm-ostree install screen
 
 ### Install Forklift:
 
@@ -31,4 +31,6 @@ systemctl enable forklift-stage-apply-systemd.service
 # overlays, and because this is just a demo anyways. If someone can fix the SELinux policies for
 # this demo, please submit a pull request at
 # https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls!
-setenforce 0
+setenforce 0 || true
+
+echo "Done with Forklift setup!"
