@@ -19,23 +19,24 @@ be decided by the maintainer of the custom OS image, not by Forklift); and to qu
 upgrade/downgrade/reprovision their deployment of those Docker Compose apps and OS files without
 having to re-install the custom OS image. Currently Forklift is designed/developed/tested mainly for
 the Raspberry Pi OS-based
-[operating system of a specific hardware project](https://docs-edge.planktoscope.community/reference/software/architecture/os/), which is currently still tied to an older version of Raspberry Pi OS
-(bullseye) with a pre-sysext version of systemd. But since sysext images are also just OS files, we
-can also use Forklift to deploy a particular set of sysext images (according to a configuration
-specified for Forklift) onto the OS.
+[operating system of a specific hardware project](https://docs-edge.planktoscope.community/reference/software/architecture/os/)
+which is currently still tied to an older version of Raspberry Pi OS (bullseye) with a pre-sysext
+version of systemd. But since sysext images are also just OS files, we can repurpose Forklift to
+deploy a particular set of sysext images (according to a configuration specified for Forklift) onto
+the OS.
 
 In Forklift, OS files (and Docker Compose apps, but we don't care about them here) are modularized
 into *packages*; a package is just a directory which contains a special `forklift-package.yml` file
 and which is somewhere inside a *repository*, which is just a Git repository with a special
 `forklift-repository.yml` file at the root of the repository. A package can declare some files
-within the package's directory which should be made available in at some declared paths in a special
+within the package's directory which should be made available at some declared paths in a special
 *export directory* (more on this later). Forklift packages and repositories are roughly
-analogous to Go packages and modules, respectively - except that Forklift packages/repositories
-cannot "import" or "include" other Forklift packages/repositories, and the path of the Forklift
-repository must be exactly the path of its Git repository (e.g.
-`github.com/ethanjli/example-exports`, never `github.com/ethanjli/example-exports/v2`
-or `github.com/ethanjli/forklift-demos/example-exports`); these differences from the design of
-Go Modules keep Forklift's design simpler for Forklift's specific use-case.
+analogous to [Go packages and modules](https://go.dev/ref/mod), respectively - except that Forklift
+packages/repositories cannot "import" or "include" other Forklift packages/repositories, and the
+path of the Forklift repository must be exactly the path of its Git repository (e.g.
+`github.com/ethanjli/example-exports` is valid, but `github.com/ethanjli/example-exports/v2`
+and `github.com/ethanjli/forklift-demos/example-exports` are invalid); these differences from the
+design of Go Modules keep Forklift's design simpler for Forklift's specific use-case.
 
 Forklift packages cannot be deployed/installed on their own. Instead, we create a Forklift *pallet*
 to declare the complete configuration of all Forklift packages which should be deployed on a
@@ -43,16 +44,16 @@ computer. A pallet is just a Git repository with a special `forklift-pallet.yml`
 of the repository, and some other special files in a special directory structure. We can then use
 Forklift or Git to clone the pallet to our computer, and then we can use Forklift to *stage* the
 pallet to be applied to our computer. When Forklift stages a pallet, it copies various files into
-a new directory called a *staged pallet bundle* (look, naming is hard!) in a special directory
-called the *stage store* (look, naming is hard!!). Inside the staged pallet bundle is a subdirectory
+a new directory called a *staged pallet bundle* (look,, naming is hard) in a special directory
+called the *stage store* (look,,, naming is hard!!). Inside the staged pallet bundle is a subdirectory
 called `exports` which contains all the files declared for export by the pallet's deployed packages.
 
 We can add a systemd service which runs during early boot (e.g. before `sysinit.target`) and queries
 Forklift for the path of the staged pallet bundle which should be applied to the computer, and then
-bind-mounts or overlay-mounts a subdirectory in that bundle's `exports` directory to an arbitrary
-path on the filesystem, e.g. `/usr` or `/etc` or `/var/lib/extensions`. Then we can add a systemd
-service which refreshes systemd's view of systemd units/sysexts/confexts/etc. The demo in this
-repository sets up a mount between
+bind-mounts or overlay-mounts or symlinks-to a subdirectory in that bundle's `exports` directory
+for an arbitrary path on the filesystem, e.g. `/usr` or `/etc` or `/var/lib/extensions`. Then we can
+add a systemd service which refreshes systemd's view of systemd units/sysexts/confexts/etc. The demo
+in this repository sets up a read-only bind-mount between
 `/var/lib/forklift/stages/{id of the staged pallet bundle to apply}/exports/sysexts` and
 `/var/lib/extensions`.
 
@@ -67,10 +68,10 @@ script?)
 
 ### Use a pallet
 
-This VM image comes without a pallet on your first boot, so that you can learn how to use a pallet
-yourself! This guide will deploy the latest commit from the `main` branch of
-[github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports),
-but you can make your own pallet and use it instead.
+This VM image comes without a pallet on your first boot, so that you can learn how to use a pallet.
+This guide will apply the latest commit from the `main` branch of
+[github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports)
+to your VM, but you can make your own pallet and use it instead.
 
 To clone and stage the pallet, just run (note: if, like me you hate typing, then you can replace
 `pallet` with `plt` - that's three entire keypresses saved!):
@@ -79,10 +80,11 @@ To clone and stage the pallet, just run (note: if, like me you hate typing, then
 forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 ```
 
-This command is intended to feel roughly familiar to people who use `bootc switch`; it will:
+This command is intended to feel roughly familiar/intuitive to people who use `bootc switch`.
+Behind-the-scenes, it will:
 
-1. Clone the Git repository to a local copy at `~/.local/share/forklift/pallet`, and check out the
-   latest commit of the `main` branch. This step can also be run on its own with
+1. Clone the pallet as a Git repository to a local copy at `~/.local/share/forklift/pallet`, and
+   check out the latest commit of the `main` branch. This step can also be run on its own with
    `forklift pallet clone github.com/ethanjli/pallet-example-exports@main`.
 2. Download any external Forklift repositories required by the pallet into
    `~/.cache/forklift/repositories`; our pallet doesn't require any external repositories, and
@@ -93,12 +95,12 @@ This command is intended to feel roughly familiar to people who use `bootc switc
    deploy multiple packages which all try to export files at the same target paths.
    This step can also be run on its own with `forklift pallet check`.
 4. Stage the pallet to be used on the next reboot, by creating a new staged pallet bundle in
-   `~/.local/share/forklift/stages` (which, in this OS image, is attached via to
+   `~/.local/share/forklift/stages` (which, in this OS image, is attached to
    `/var/lib/forklift/stages` via a bind-mount).
    This step can also be run on its own with `forklift pallet stage`.
 
-Then you should either reboot or (if you're too impatient to reboot) run the
-`forklift-apply-systemd` script, which will:
+Then you should reboot (or, if you're really *really* impatient and don't want to reboot) run the
+`forklift-stage-apply-systemd` script, which will:
 
 1. Query Forklift to determine the path of the next staged pallet bundle to be applied. This path
    will be a subdirectory of `/var/lib/forklift/stages`.
@@ -109,17 +111,22 @@ Then you should either reboot or (if you're too impatient to reboot) run the
 4. Run `systemd-sysext refresh`.
 5. Run `systemctl daemon-reload`.
 6. Run `systemctl restart --no-block sockets.target timers.target multi-user.target default.target`.
-7. Run `forklift stage apply` to update Docker Compose apps (if there are any), and record in
-   Forklift's stage store that the staged pallet bundle was successfully applied.
+   Warning: if you run `forklift-stage-apply-systemd` after boot, this will not attempt to stop any
+   systemd units associated with sysexts/confexts which you've removed after boot. This is why I
+   recommend just rebooting instead.
+7. Run `forklift stage apply` to update the deployed Docker Compose apps (if there are any), and
+   record in Forklift's stage store that the staged pallet bundle was successfully applied (so that
+   it won't be garbage-collected if you run `forklift stage prune-bundles` to clean up Forklift's
+   stage store).
 
 You should then see new extensions if you run `systemd-sysext status`. On your next reboot, you'll
 see that a new service has run as part of boot if you run
 `systemctl status hello-from-confext.service`.
 
-You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the same
+You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the
 `forklift pallet switch` command. Each time you run `forklift pallet switch` or
 `forklift pallet stage`, forklift will create a new staged pallet bundle in the stage store. You can
-query and modify the state of your stage store with `forklift stage show` and other subcommands
+query and modify the state of your stage store with `forklift stage show` and with other subcommands
 of `forklift stage`.
 
 ### Modify a pallet and use it
@@ -127,7 +134,9 @@ of `forklift stage`.
 There will be a nicer CLI workflow in the future for modifying pallets, but for now in order to
 modify your local copy of the pallet you should directly edit files in the Git repo which is your
 pallet. Then you can run `forklift pallet stage` (and reboot again or run `forklift-apply-systemd`)
-to preview it.
+to preview it. Warning: if you have changes which you haven't pushed up to GitHub/etc. and then
+you run `forklift pallet switch {pallet-path}@{version-query}`, your modifications to your pallet
+will all be deleted/overwritten and replaced with the pallet you're switching to!
 
 # Caveats/Limitations
 
