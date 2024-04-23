@@ -1,0 +1,61 @@
+#!/bin/bash -eu
+
+# By default, Forklift loads its stage store from ~/.local/share/forklift/stages; that is not
+# necessarily accessible during early-ish system bootup, so we use a directory in /var instead;
+# the FORKLIFT_STAGE_STORE environment variable is read by forklift:
+FORKLIFT_STAGE_STORE=/var/lib/forklift/stages
+
+NEXT_BUNDLE="$(forklift stage locate-bundle next)"
+echo "The next staged pallet bundle to be applied is: $NEXT_BUNDLE"
+NEXT_BUNDLE_EXTENSIONS="$(forklift stage locate-bundle next)/exports/extensions"
+
+# Note: there's no reason we can't use any of the other allowed directories for sysexts &
+# confexts; I chose these ones because the systemd docs describe these as the primary places for
+# installing extensions. If you change these, you should also change the corresponding mount paths
+# in forklift-stage-apply-systemd.service so that these paths are unmounted during shutdown:
+SYSEXT_TARGET="/var/lib/extensions"
+CONFEXT_TARGET="/var/lib/confexts"
+# (We could also mount the extensions to some other place such as /run/forklift/extensions and then
+# mount /var/lib/extensions & /var/lib/confexts as overlayFSes with /run/forklift/extensions as a
+# lower layer and a user-writable upper-layer, e.g. /run/overlays/overrides/var/lib/extensions and
+# /run/overlays/overrides/var/lib/confexts, if we wanted to allow the user to bring their own
+# extensions not managed by Forklift; we can also combine multiple lower layers if we also want to
+# provide extensions as part of the base OS container image outside of Forklift)
+
+if mountpoint -q "$SYSEXT_TARGET"; then
+  umount "$SYSEXT_TARGET"
+fi
+if mountpoint -q "$CONFEXT_TARGET"; then
+  umount "$CONFEXT_TARGET"
+fi
+
+if [ -d $NEXT_BUNDLE_EXTENSIONS ]; then
+  # Bind mounts will fail if the targets don't already exist:
+  mkdir -p "$SYSEXT_TARGET"
+  mkdir -p "$CONFEXT_TARGET"
+
+  # We mount the sysext/confext target paths as read-only because we don't want anyone to accidentally
+  # modify them thinking it's fine to do so. Doing so won't cause the world to end, but it'll leave
+  # the exports directory of the current staged pallet bundle in Forklift's stage store in a
+  # non-pristine and non-reproducible state; better instead to prevent accidental changes:
+  mount --bind "$NEXT_BUNDLE_EXTENSIONS" "$SYSEXT_TARGET"
+  mount -o bind,remount,ro "$SYSEXT_TARGET"
+  mount --bind "$NEXT_BUNDLE_EXTENSIONS" "$CONFEXT_TARGET"
+  mount -o bind,remount,ro "$CONFEXT_TARGET"
+  # (If you really want to tamper with Forklift's stage store, you can always directly modify files in
+  # /var/lib/forklift/stages - please please don't do that!! Instead, you should stage a modified
+  # pallet.)
+else
+  echo "Warning: the staged pallet bundle does not export any systemd extensions!"
+  echo "We'll leave $SYSEXT_TARGET and $CONFEXT_TARGET as regular directories without bind mounts."
+fi
+
+systemd-sysext refresh
+systemctl daemon-reload
+# This was shamelessly ripped from https://www.youtube.com/watch?t=1087&v=EMH8_97OAPg:
+systemctl restart --no-block sockets.target timers.target multi-user.target default.target
+# (you could probably use `systemctl isolate multi-user.target` instead if you understood the
+# consequences of doing so; but I'm personally not sure I fully understand those consequences, so
+# I'll just stick with what Flatcar Container Linux uses/used, tyvm):
+
+forklift stage apply

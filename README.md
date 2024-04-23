@@ -61,10 +61,18 @@ in this repository sets up a read-only bind-mount between
 
 ## Setup
 
-### Configure your user
+### Prepare your VM
 
-TBD (do we need to do anything with bind mounts, user groups, etc.? Can we automate that with a
-script?)
+After starting the VM and logging in, you should run:
+
+```
+sudo systemctl enable bind-.local-share-forklift-stages@home-$USER.service
+```
+
+This will enable you to run `forklift pallet switch` (or `forklift pallet stage) commands
+(described below) without using `sudo -E` and without having to specify
+`FORKLIFT_STAGE_STORE=var/lib/forklift/stages` as an environment variable for
+`forklift pallet switch` (or `forklift pallet stage`) commands.
 
 ### Use a pallet
 
@@ -100,7 +108,7 @@ Behind-the-scenes, it will:
    This step can also be run on its own with `forklift pallet stage`.
 
 Then you should reboot (or, if you're really *really* impatient and don't want to reboot) run the
-`forklift-stage-apply-systemd` script, which will:
+`forklift-stage-apply-systemd` script with `sudo`, which will:
 
 1. Query Forklift to determine the path of the next staged pallet bundle to be applied. This path
    will be a subdirectory of `/var/lib/forklift/stages`.
@@ -121,7 +129,7 @@ Then you should reboot (or, if you're really *really* impatient and don't want t
 
 You should then see new extensions if you run `systemd-sysext status`. On your next reboot, you'll
 see that a new service has run as part of boot if you run
-`systemctl status hello-from-confext.service`.
+`systemctl status hello-world.service`.
 
 You can also subsequently switch to another pallet from GitHub/GitLab/etc. using the
 `forklift pallet switch` command. Each time you run `forklift pallet switch` or
@@ -139,8 +147,6 @@ you run `forklift pallet switch {pallet-path}@{version-query}`, your modificatio
 will all be deleted/overwritten and replaced with the pallet you're switching to!
 
 # Caveats/Limitations
-
-Forklift:
 
 - Currently Forklift can only handle plain-directory sysext images. I am anyways planning to add
   functionality to Forklift to download external/online files into the export directory (and it will
@@ -186,10 +192,3 @@ Forklift:
   file browser to manually create the necessary files. This means Forklift doesn't yet have a CLI
   equivalent of `systemctl enable (unit)`. I plan to eventually add some sort of CLI for that
   workflow.
-
-
-This demo:
-
-- The demo OS image is meant to be run in x86 VMs, because I am choosing not to spend the time to
-  figure out how to determine CPU architecture in order to choose the appropriate static binary of
-  Forklift to download.

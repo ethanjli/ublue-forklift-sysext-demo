@@ -1,0 +1,32 @@
+[Unit]
+Description=Update systemd with sysexts & confexts managed by Forklift
+DefaultDependencies=no
+ConditionPathIsDirectory=/var/lib/forklift/stages
+# Are these the correct service dependencies? Did I miss any? Please file an issue at
+# github.com/ethanjli/ublue-forklift-sysext-demo if you encounter a problem!
+Requires=usr.mount
+After=usr.mount
+Requires=var.mount
+After=var.mount
+Requires=systemd-remount-fs.service
+After=systemd-remount-fs.service
+Before=systemd-sysext.service
+Conflicts=umount.target
+Before=umount.target
+
+[Service]
+# This is implemented as a service rather than a mount because keeping all the related ExecStart
+# commands in one unit makes the sequence of steps clearer.
+Type=oneshot
+RemainAfterExit=true
+Exec=forklift-stage-apply-systemd
+# Note: `umount -l` is not recommended in general (see https://unix.stackexchange.com/a/390057)
+# because it just removes the mounts from the namespace while writes to open files can continue;
+# however, this is probably acceptable behavior for us at shutdown because our mounts are read-only:
+ExecStopPost=umount -l /var/lib/extensions
+ExecStopPost=umount -l /var/lib/confexts
+# (if anyone recommends a cleaner way to unmount these paths, please notify @ethanjli on Discord or
+# lietk12@gmail.com !)
+
+[Install]
+WantedBy=local-fs.target
