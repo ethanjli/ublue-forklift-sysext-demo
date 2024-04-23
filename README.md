@@ -186,6 +186,13 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
 
 # Caveats/Limitations
 
+- This demo disable SELinux policy enforcement because of
+  <https://github.com/systemd/systemd/issues/23971>, and because I don't have enough experience with
+  SELinux to change the SELinux policy so that the overlays don't cause everything (e.g. sudo and
+  chkpwd) to break after systemd-sysext enables filesystem overlays (or maybe it's the bind mounts
+  I make in this demo for Forklift?), and because this is just a demo. If someone can fix
+  the SELinux policies for this demo, please submit a pull request at
+  <https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls>!
 - Currently Forklift can only handle plain-directory sysext images. I am anyways planning to add
   functionality to Forklift to download external/online files into the export directory (and it will
   probably be heavily inspired by
