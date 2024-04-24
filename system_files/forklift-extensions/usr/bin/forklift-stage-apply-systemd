@@ -70,7 +70,7 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # /etc overlay in the presence of confexts:
 ETC_WORKDIR=/var/lib/overlays/workdirs/etc
 mkdir -p $ETC_WORKDIR
-ETC_UPPERDIR=/var/lib/overlays/overrides/etc
+ETC_UPPERDIR=/var/lib/extensions.mutable/etc
 mkdir -p $ETC_UPPERDIR
 mkdir -p $ETC_REBIND
 mount --bind /etc $ETC_REBIND
