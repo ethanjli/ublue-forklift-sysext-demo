@@ -59,8 +59,9 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # I'll just stick with what Flatcar Container Linux uses/used, tyvm)
 
 if [ -f /var/run/docker.sock ]; then
-  echo "Docker Compose apps..."
+  echo "Updating Docker Compose apps..."
   forklift stage apply
 else
+  echo "Skipping any updates to Docker Compose apps, because Docker does not appear to be installed!"
   # TODO(ethanjli): run `forklift stage apply --no-docker` or something
 fi
