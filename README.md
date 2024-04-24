@@ -14,7 +14,7 @@ environment (actually I was hoping that layering my OS image off of
 would enable me to generate an installer ISO less than 2 GB so that I could upload it as an
 attachment to GitHub Releases, but the
 [JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
-makes a 2.8 GB installer anyways 🥲).
+makes a 3 GB installer anyways 🥲).
 
 # Usage
 
@@ -60,14 +60,16 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 (Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
 saved!!)
 
-If you run `systemd-sysext status` and `systemd-confext status again, you can confirm that there are
-still no sysexts/confexts yet on your system. Then you should reboot (or, if you're really *really*
-impatient and don't want to reboot, run `sudo forklift-stage-apply-systemd`).
+If you run `systemd-sysext status` and `systemd-confext status` again, you can confirm that there
+are still no sysexts/confexts yet on your system. Then you should reboot (or, if you're really
+*really* impatient and don't want to reboot, run `sudo forklift-stage-apply-systemd`).
 
 You should then see new extensions if you run `systemd-sysext status` and `systemd-confext status`.
-You should also see that a new service is available (but not yet enabled), if you check its status
-with `systemctl status hello-world-extension.service`. You should also see a script at
-`/usr/bin/hello-world-extension`.
+You should also see that a new service ran successfully, if you check its status with
+`systemctl status hello-world-extension.service`. You should also see a script at
+`/usr/bin/hello-world-extension`. That script and that service are provided by the hello-world
+extension (loaded as a sysext and also as a confext) exported by the Forklift pallet
+`github.com/ethanjli/pallet-example-exports`.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged

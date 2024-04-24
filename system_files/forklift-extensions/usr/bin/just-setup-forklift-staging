@@ -14,3 +14,4 @@ sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service
 # https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls!
 sudo setenforce 0
 sudo sed "s/SELINUX=enforcing/SELINUX=permissive/" -i /etc/sysconfig/selinux
+sudo sed "s/SELINUX=enforcing/SELINUX=permissive/" -i /etc/selinux/config
