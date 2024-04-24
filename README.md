@@ -9,16 +9,16 @@ This repository provides a simple command-line-only demo for integrating
 [systemd-sysext](https://www.freedesktop.org/software/systemd/man/latest/systemd-sysext.html)
 in a Fedora OSTree-based system meant to be run in a VM. To keep this demo small enough that you
 don't try to rely on it for serious use, the OS image does not include a graphical desktop
-environment (actually I was hoping that layering my OS image off of
+environment (actually, that's just an excuse: I was initially hoping that layering my OS image over
 [ghcr.io/ublue-os/base-main](https://github.com/ublue-os/main/pkgs/container/base-main)
-would enable me to generate an installer ISO less than 2 GB so that I could upload it as an
-attachment to GitHub Releases, but the
+would enable me to generate an installer ISO smaller than 2 GB, so that I could upload it as an
+attachment to GitHub Releases; but the
 [JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
 makes a 3 GB installer anyways 🥲).
 
 # Usage
 
-(the guide below refers to terms specific to Forklift; you can jump down to the
+(the guide below refers to terms specific to Forklift; if you get confused, you can jump down to the
 [Explanation](#explanation) section to read a long summary of what those terms mean)
 
 ## Set up your VM
@@ -26,11 +26,11 @@ makes a 3 GB installer anyways 🥲).
 You will need to download the latest version of the installer ISO. To do so, go to
 <https://github.com/ethanjli/ublue-forklift-sysext-demo/actions>, click on the most recent workflow
 run which completed successfully, and download the `ublue-forklift-sysext-demo-latest.zip` artifact
-from it (the download should be ~2.8 GB). The ZIP file contains the installer ISO file; you should
-extract the ISO file, create a new VM with it, and go through the installer; make sure to create a
-user for yourself.
+from it (the download should be ~3 GB). The ZIP file contains the installer ISO file; you should
+extract the ISO file, create a new VM with it, and proceed through the installer.
 
-After you finish installation, restart the VM, and log in, then you should run (without `sudo`!):
+After you finish installation, restart the VM, and log in, then you should run (**without**
+`sudo`!):
 
 ```
 just-setup-forklift-staging
@@ -40,8 +40,8 @@ That command will enable you to run `forklift pallet switch` (or `forklift palle
 (described below) without having to use `sudo -E` and without having to set
 `FORKLIFT_STAGE_STORE=/var/lib/forklift/stages` as an environment variable for those commands.
 
-If you run `systemd-sysext status` and `systemd-confext status`, you can confirm that there are no
-sysexts/confexts yet on your system.
+If you run `systemd-sysext status` and `systemd-confext status`, you can confirm that there are not
+yet any systemd sysexts/confexts in your VM.
 
 ## Use a pallet
 
@@ -60,15 +60,17 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 (Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
 saved!!)
 
-If you run `systemd-sysext status` and `systemd-confext status` again, you can confirm that there
-are still no sysexts/confexts yet on your system. Then you should reboot (or, if you're really
-*really* impatient and don't want to reboot, run `sudo forklift-stage-apply-systemd`).
+If you run `systemd-sysext status` and `systemd-confext status` again, you can confirm that
+there are still no sysexts/confexts yet on your system.
 
-You should then see new extensions if you run `systemd-sysext status` and `systemd-confext status`.
-You should also see that a new service ran successfully, if you check its status with
-`systemctl status hello-world-extension.service`. You should also see a script at
-`/usr/bin/hello-world-extension`. That script and that service are provided by the hello-world
-extension (loaded as a sysext and also as a confext) exported by the Forklift pallet
+Next, you should reboot (or, if you're really *really* impatient and don't want to reboot, run
+`sudo forklift-stage-apply-systemd`).
+
+Next, you should then see new extensions if you run `systemd-sysext status` and
+`systemd-confext status`. You should also see that a new service ran successfully, if you check its
+status with `systemctl status hello-world-extension.service`. You should also see a script at
+`/usr/bin/hello-world-extension`. That script and that systemd service are provided by the
+`hello-world` extension (loaded as a sysext and also as a confext) exported by the Forklift pallet
 `github.com/ethanjli/pallet-example-exports`.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
@@ -77,27 +79,29 @@ pallet bundle in the stage store. Each time you run `forklift pallet switch` or
 `forklift pallet stage`, forklift will create a new staged pallet bundle in the stage store (which
 is at both `~/.local/share/forklift/stages` and `/var/lib/forklift/stages`). You can query and
 modify the state of your stage store by running `forklift stage show` and by running other
-subcommands of `forklift stage`.
+subcommands of `forklift stage`; if you just run `forklift stage`, it will print some information
+about the available subcommands.
 
 ## Modify a pallet and use it
 
-There will be a nicer CLI workflow in the future for modifying pallets, but for now in order to
-modify your local copy of the pallet you should directly edit files in the Git repo which is your
-pallet, at `~/.local/share/forklift/pallet`. Then you can run `forklift pallet stage` (and reboot
-again or run `forklift-apply-systemd`) to preview it. Warning: if you have changes which you haven't
-pushed up to GitHub/etc. and then you run `forklift pallet switch {pallet-path}@{version-query}`,
-your modifications to your pallet will all be deleted/overwritten and replaced with the pallet
-you're switching to! If you are thinking of doing that, you should first commit and push your
-changes to GitHub/GitLab/etc.
+I will eventually implement a nicer CLI workflow for modifying pallets, but for now in order to
+modify your local copy of the pallet you should directly edit files in
+`~/.local/share/forklift/pallet`. Then you can run `forklift pallet stage` (and reboot again or run
+`forklift-stage-apply-systemd` again) to preview it.
+
+Warning: if you have changes which you haven't pushed up to GitHub/etc. and then you run
+`forklift pallet switch {pallet-path}@{version-query}`, your modifications to your pallet will all
+be deleted/overwritten and replaced with the pallet you're switching to! If you are thinking of
+doing that, you should first commit and push your changes to GitHub/GitLab/etc.
 
 # Explanation
 
-## What is Forklift? What is a "pallet"?
+## What is Forklift?
 
-Forklift is an experimental prototype tool primarily designed to make it simpler to build custom OS
-images of non-atomic Linux distros which need to provide a set of Docker Compose apps and/or a
-custom layer of any OS files (where the specific directories to layer should be decided by the
-maintainer of the custom OS image, not by Forklift); and to enable users/operators to quickly &
+Forklift is an experimental prototype tool primarily designed to make it simpler to build OS images
+(esp. custom images) of non-atomic Linux distros which need to provide a set of Docker Compose apps
+and/or a custom layer of any OS files (where the specific directories to layer should be decided by
+the maintainer of the custom OS image, not by Forklift); and to enable users/operators to quickly &
 cleanly upgrade/downgrade/reprovision their deployment of those Docker Compose apps and OS files
 without having to re-install the custom OS image. Currently Forklift is designed/developed/tested
 mainly for the Raspberry Pi OS-based
@@ -120,6 +124,8 @@ its Git repository (e.g. `github.com/ethanjli/example-exports` is valid, but
 `github.com/ethanjli/example-exports/v2` and `github.com/ethanjli/forklift-demos/example-exports`
 are not valid repository paths); these differences from the design of Go Modules keep Forklift's
 design simpler for Forklift's specific use-case.
+
+## What is a "pallet"?
 
 Forklift packages cannot be deployed/installed on their own. Instead, we create a *Forklift pallet*
 to declare the complete configuration of all Forklift packages which should be deployed on a
@@ -145,7 +151,7 @@ a read-only bind-mount between
 ## What does `forklift pallet switch` do?
 
 The `forklift pallet switch` command is intended to feel roughly familiar/intuitive to people who
-also use `bootc switch`. Behind-the-scenes, running
+also use `bootc switch` and/or `rpm-ostree rebase`. Behind-the-scenes, running
 `forklift pallet switch {path of pallet}@{version query}` will:
 
 1. Clone the pallet as a Git repository to a local copy at `~/.local/share/forklift/pallet`, and
@@ -167,7 +173,8 @@ also use `bootc switch`. Behind-the-scenes, running
 
 ## What does the `forklift-stage-apply-systemd` script do?
 
-This script is run as part of early (or early-ish) boot every time the OS boots up. It will:
+This script is run by the `forklift-stage-apply-systemd.service` systemd service as part of early
+(or early-ish) boot every time the OS boots up. It will:
 
 1. Query Forklift to determine the path of the next staged pallet bundle to be applied. This path
    will be a subdirectory of `/var/lib/forklift/stages`.
@@ -180,7 +187,7 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
 6. Run `systemctl restart --no-block sockets.target timers.target multi-user.target default.target`.
    Warning: if you run `forklift-stage-apply-systemd` after boot, this will not attempt to stop any
    systemd units associated with sysexts/confexts which you've removed after boot. This is why I
-   recommend just rebooting instead.
+   generally recommend just rebooting instead of running `forklift-stage-apply-systemd` yourself.
 7. Run `forklift stage apply` to update the deployed Docker Compose apps (only if there are any, and
    only if `/var/run/docker.sock` exists), and record in Forklift's stage store that the staged
    pallet bundle was successfully applied so that it won't be garbage-collected if you run
@@ -203,51 +210,59 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
   functionality to Forklift to download external/online files into the export directory (and it will
   probably be heavily inspired by
   [how chezmoi does a similar task](https://www.chezmoi.io/user-guide/include-files-from-elsewhere/)),
-  and then Forklift should be able to handle other sysext image formats. Once I do that, I'd like to
-  add a demo of adding a Docker sysext (and system services) into this demo.
-- To keep Forklift simple, I do not plan to add functionality into Forklift to deduplicate large
-  files across staged pallet bundles in Forklift's stage store (though I would be interested in
+  and then Forklift should be able to handle other sysext image formats downloadable from, for
+  example, files attached to GitHub Releases or arbitrary URLs. Once I do that, I'd like to add a
+  demo of adding a Docker sysext (and system services) into this demo - preferably a sysext provided
+  by [flatcar/sysext-bakery](https://github.com/flatcar/sysext-bakery).
+- To keep Forklift simple, I do not want to add functionality into Forklift to deduplicate large
+  files across staged pallet bundles in Forklift's stage store. However, I would be interested in
   supporting use of OCI images rather than Git repos to distribute Forklift repos & pallets as well
   as external/online files to be assembled into the export directory, in which case deduplication of
-  large sysext images could be feasible).
-- To keep Forklift simple for my primary use-case for it and to keep it flexible enough for
-  maintainers of custom OS images to use according to their needs, I currently do not plan to have
-  Forklift manage FS mounts itself. So the workflow to change the sysexts on the system will
-  (probably) always involve modifying the local pallet (and then running `forklift pallet stage`)
-  or totally replacing the local pallet from a remote source, and then either:
+  large sysext images could be feasible.
+- To keep Forklift reasonably simple for my primary use-case for it and to keep it flexible enough
+  for maintainers of custom OS images to use according to their needs, I currently do not plan to
+  have Forklift manage FS mounts itself. So the workflow to change/update the sysexts/confexts on
+  the system will (probably) always involve modifying the local pallet (and then running
+  `forklift pallet stage`) or totally replacing the local pallet from a remote source, and then
+  either:
 
-    1. rebooting (on a custom OS image which integrates Forklift with `/var/lib/extensions` and
-       `/var/lib/confexts`, such as this repo's OS image); or
+    1. rebooting (if you're on a custom OS image which integrates Forklift with
+       `/var/lib/extensions` and `/var/lib/confexts`, such as this repo's OS image); or
     2. running some command/script which re-mounts `/var/lib/extensions` and `/var/lib/confexts` and
-       then reloads systemd's view of the sysexts/confexts (such as this repo's
-       `/usr/bin/forklift-stage-apply-systemd` script).
+       then reloads systemd's view of the sysexts/confexts (which is what this repo's
+       `/usr/bin/forklift-stage-apply-systemd` script does).
 
-  I'm potentially interested in the following possibilities:
+  If this workflow turns out to be too unwieldy, I'm potentially interested in the following
+  possibilities:
 
     1. making a separate tool which uses the same internal code as Forklift but provides a CLI
        designed specifically for managing sysexts/confexts (and perhaps provides tighter integration
-       for systemd service enablement and for management of FS mounts, and/or tigheter integration
-       with systemd-sysext's extension paths); or
+       for systemd and for management of FS mounts, and/or tighter integration with
+       systemd-sysext/confext's extension paths); or
     2. adjusting the design of what is currently implemented in Forklift so that it's a bit nicer
-       for managing sysexts/confexts, but without sacrificing usability in the other workflows I need
-       Forklift to support;
+       for managing sysexts/confexts, but without sacrificing usability in the other workflows which
+       Forklift must support;
 
   but these are not high priorities for me in the near future because I am not daily-driving
   sysexts/confexts yet (and because the system I'm developing Forklift for has not finished its
-  migration from Raspberry Pi OS 11 to Raspberry Pi OS 12, which adds systemd-sysext support). If
-  you want to fork Forklift or lift code out of it for your own independent experiments to make
-  something more tailored to systemd-sysext workflows, please feel free to do so (but please follow
-  the requirements of the Apache-2.0 license which Forklift is released under)! Warning: my code is
-  still immature enough that it will probably undergo some additional major refactorings, so don't
-  expect too much in terms of quality. Also, I haven't written any software tests yet 🫠.
-- The CLI for modifying pallets (e.g. adding package deployments) is only partially implemented; for
-  anything besides adding/updating repo requirements (currently `forklift dev pallet add-repo`,
-  though I plan to add `forklift pallet require-repo` as a nicer alias), I just use a file browser
-  to manually create the necessary files. This means Forklift currently doesn't have a CLI
-  command roughly analogous to `systemctl enable {unit}` or `apk add {package}`. I plan to
-  eventually add a more complete CLI for editing pallets.
+  migration from Raspberry Pi OS 11 to Raspberry Pi OS 12, which adds systemd-sysext support; and
+  because in that project I'll be using systemd-sysexts/confexts together with Forklift's other
+  features).
+
+  If you want to fork Forklift or lift code out of it for your own independent
+  experiments to make something more tailored to systemd-sysext/confext workflows, please feel free
+  to do so (but please follow the requirements of the Apache-2.0 license which Forklift is released
+  under)! Warning: my code is still immature enough that it will probably undergo some additional
+  major refactoring iterations, so don't expect too much in terms of quality. Also, I haven't
+  written any software tests yet 🫠.
+- The CLI for modifying pallets (e.g. adding package deployments) is still only partially
+  implemented; for anything besides adding/updating repo requirements (currently
+  `forklift dev pallet add-repo`, though I plan to add `forklift pallet require-repo` as a nicer
+  alias), I just use a file browser to manually create the necessary files. This means Forklift
+  currently doesn't have a CLI command for adding package deployments which would be roughly
+  analogous to `systemctl enable {unit}` or `apk add {package}`.
 - Forklift is a large binary (~20 MB compressed, ~60 MB uncompressed) because it's also designed as
   a tool to manage all Docker Compose apps deployed on a system, and the fastest/easiest way to
   implement that was by including github.com/docker/compose/v2 as a library which I use. Making
   Forklift smaller is not a priority for me in the foreseeable future, but it would be nice to do
-  eventually if it doesn't add too much complexity.
+  eventually - assuming it doesn't add too much complexity.
