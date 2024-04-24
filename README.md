@@ -40,8 +40,8 @@ That command will enable you to run `forklift pallet switch` (or `forklift palle
 (described below) without having to use `sudo -E` and without having to set
 `FORKLIFT_STAGE_STORE=/var/lib/forklift/stages` as an environment variable for those commands.
 
-If you run `systemd-sysext status`, you can confirm that there are no sysexts/confexts yet on your
-system.
+If you run `systemd-sysext status` and `systemd-confext status`, you can confirm that there are no
+sysexts/confexts yet on your system.
 
 ## Use a pallet
 
@@ -60,13 +60,13 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 (Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
 saved!!)
 
-If you run `systemd-sysext status` again, you can confirm that there are still no sysexts/confexts
-yet on your system. Then you should reboot (or, if you're really *really* impatient and don't want
-to reboot, run `sudo forklift-stage-apply-systemd`).
+If you run `systemd-sysext status` and `systemd-confext status again, you can confirm that there are
+still no sysexts/confexts yet on your system. Then you should reboot (or, if you're really *really*
+impatient and don't want to reboot, run `sudo forklift-stage-apply-systemd`).
 
-You should then see new extensions if you run `systemd-sysext status`. You should also see that a
-new service has just run, if you check its status with
-`systemctl status hello-world-extension.service`. You should also see a script at
+You should then see new extensions if you run `systemd-sysext status` and `systemd-confext status`.
+You should also see that a new service is available (but not yet enabled), if you check its status
+with `systemctl status hello-world-extension.service`. You should also see a script at
 `/usr/bin/hello-world-extension`.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
@@ -224,7 +224,8 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
 
     1. making a separate tool which uses the same internal code as Forklift but provides a CLI
        designed specifically for managing sysexts/confexts (and perhaps provides tighter integration
-       for systemd and management of FS mounts or with systemd-sysext's extension paths); or
+       for systemd service enablement and for management of FS mounts, and/or tigheter integration
+       with systemd-sysext's extension paths); or
     2. adjusting the design of what is currently implemented in Forklift so that it's a bit nicer
        for managing sysexts/confexts, but without sacrificing usability in the other workflows I need
        Forklift to support;

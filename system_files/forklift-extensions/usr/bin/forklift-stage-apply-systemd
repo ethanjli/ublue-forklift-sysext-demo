@@ -21,10 +21,10 @@ CONFEXT_TARGET="/var/lib/confexts"
 # provide extensions as part of the base OS container image outside of Forklift)
 
 if mountpoint -q "$SYSEXT_TARGET"; then
-  umount -L "$SYSEXT_TARGET"
+  umount -l "$SYSEXT_TARGET"
 fi
 if mountpoint -q "$CONFEXT_TARGET"; then
-  umount -L "$CONFEXT_TARGET"
+  umount -l "$CONFEXT_TARGET"
 fi
 
 if [ -d $NEXT_BUNDLE_EXTENSIONS ]; then
@@ -51,6 +51,7 @@ fi
 
 echo "Updating systemd..."
 systemd-sysext refresh
+systemd-confext refresh
 systemctl daemon-reload
 # This was shamelessly ripped from https://www.youtube.com/watch?t=1087&v=EMH8_97OAPg:
 systemctl restart --no-block sockets.target timers.target multi-user.target default.target

@@ -24,13 +24,4 @@ sudo ln -s "forklift-${FORKLIFT_VERSION}" /usr/bin/forklift
 
 systemctl enable forklift-stage-apply-systemd.service
 
-### Disable SELinux
-# Note: we disable SELinux because of https://github.com/systemd/systemd/issues/23971, and because
-# I don't have enough experience with SELinux to change the SELinux policy so that the overlays
-# don't cause everything (e.g. sudo and chkpwd) to break after systemd-sysext enables filesystem
-# overlays, and because this is just a demo anyways. If someone can fix the SELinux policies for
-# this demo, please submit a pull request at
-# https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls!
-setenforce 0 || true
-
 echo "Done with Forklift setup!"

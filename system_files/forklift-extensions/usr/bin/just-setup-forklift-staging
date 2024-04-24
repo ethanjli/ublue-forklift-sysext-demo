@@ -4,3 +4,13 @@ mkdir -p $HOME/.local/share/forklift/stages
 sudo mkdir -p /var/lib/forklift
 sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
 sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service
+
+### Disable SELinux
+# Note: we disable SELinux because of https://github.com/systemd/systemd/issues/23971, and because
+# I don't have enough experience with SELinux to change the SELinux policy so that the overlays
+# don't cause everything (e.g. sudo and chkpwd) to break after systemd-sysext enables filesystem
+# overlays, and because this is just a demo anyways. If someone can fix the SELinux policies for
+# this demo, please submit a pull request at
+# https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls!
+sudo setenforce 0
+sudo sed "s/SELINUX=enforcing/SELINUX=permissive/" -i /etc/sysconfig/selinux
