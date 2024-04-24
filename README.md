@@ -179,17 +179,18 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
    Warning: if you run `forklift-stage-apply-systemd` after boot, this will not attempt to stop any
    systemd units associated with sysexts/confexts which you've removed after boot. This is why I
    recommend just rebooting instead.
-7. Run `forklift stage apply` to update the deployed Docker Compose apps (if there are any), and
-   record in Forklift's stage store that the staged pallet bundle was successfully applied (so that
-   it won't be garbage-collected if you run `forklift stage prune-bundles` to clean up Forklift's
-   stage store) (Note: I still need to implement some functionality in Forklift to handle the case
-   that Docker is not installed, so for now you should just avoid running
-   `forklift stage prune-bundles` unless you want to delete everything in your stage store).
+7. Run `forklift stage apply` to update the deployed Docker Compose apps (only if there are any, and
+   only if `/var/run/docker.sock` exists), and record in Forklift's stage store that the staged
+   pallet bundle was successfully applied so that it won't be garbage-collected if you run
+   `forklift stage prune-bundles` to clean up Forklift's stage store)
+   (Note: I still need to implement some functionality in Forklift to handle the case that Docker
+   is not installed, so for now you should just avoid running `forklift stage prune-bundles` unless
+   you want to delete everything in your stage store).
 
 
 # Caveats/Limitations
 
-- This demo disable SELinux policy enforcement because of
+- This demo disables SELinux policy enforcement because of
   <https://github.com/systemd/systemd/issues/23971>, and because I don't have enough experience with
   SELinux to change the SELinux policy so that the overlays don't cause everything (e.g. sudo and
   chkpwd) to break after systemd-sysext enables filesystem overlays (or maybe it's the bind mounts
@@ -200,28 +201,30 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
   functionality to Forklift to download external/online files into the export directory (and it will
   probably be heavily inspired by
   [how chezmoi does a similar task](https://www.chezmoi.io/user-guide/include-files-from-elsewhere/)),
-  and then Forklift should be able to handle other sysext image formats.
+  and then Forklift should be able to handle other sysext image formats. Once I do that, I'd like to
+  add a demo of adding a Docker sysext (and system services) into this demo.
 - To keep Forklift simple, I do not plan to add functionality into Forklift to deduplicate large
   files across staged pallet bundles in Forklift's stage store (though I would be interested in
   supporting use of OCI images rather than Git repos to distribute Forklift repos & pallets as well
-  as external/online, in which case deduplication of large sysext images could be feasible).
-- To keep Forklift simple for my primary use-case for it and to keep it flexible for maintainers of
-  custom OS images to use according to their needs, I currently do not plan to have Forklift manage
-  FS mounts itself. So the workflow to change the sysexts on the system will (probably) always
-  involve modifying the local pallet (and then running `forklift pallet stage`) or totally replacing
-  the local pallet from a remote source, then either:
+  as external/online files to be assembled into the export directory, in which case deduplication of
+  large sysext images could be feasible).
+- To keep Forklift simple for my primary use-case for it and to keep it flexible enough for
+  maintainers of custom OS images to use according to their needs, I currently do not plan to have
+  Forklift manage FS mounts itself. So the workflow to change the sysexts on the system will
+  (probably) always involve modifying the local pallet (and then running `forklift pallet stage`)
+  or totally replacing the local pallet from a remote source, and then either:
 
     1. rebooting (on a custom OS image which integrates Forklift with `/var/lib/extensions` and
        `/var/lib/confexts`, such as this repo's OS image); or
     2. running some command/script which re-mounts `/var/lib/extensions` and `/var/lib/confexts` and
-       then reloads systemd's view of the sysexts/confexts (such as the
-       `/usr/bin/forklift-stage-apply-systemd` script provided by this repo's OS image).
+       then reloads systemd's view of the sysexts/confexts (such as this repo's
+       `/usr/bin/forklift-stage-apply-systemd` script).
 
   I'm potentially interested in the following possibilities:
 
-    1. making a separate tool using the same internal code as Forklift but provides a CLI designed
-       specifically for managing sysexts/confexts (and perhaps tighter integration for systemd and
-       management of FS mounts); or
+    1. making a separate tool which uses the same internal code as Forklift but provides a CLI
+       designed specifically for managing sysexts/confexts (and perhaps provides tighter integration
+       for systemd and management of FS mounts or with systemd-sysext's extension paths); or
     2. adjusting the design of what is currently implemented in Forklift so that it's a bit nicer
        for managing sysexts/confexts, but without sacrificing usability in the other workflows I need
        Forklift to support;
@@ -229,16 +232,19 @@ This script is run as part of early (or early-ish) boot every time the OS boots 
   but these are not high priorities for me in the near future because I am not daily-driving
   sysexts/confexts yet (and because the system I'm developing Forklift for has not finished its
   migration from Raspberry Pi OS 11 to Raspberry Pi OS 12, which adds systemd-sysext support). If
-  you want to lift code out of Forklift for your own independent experiments to make something more
-  tailored to systemd-sysext, please feel free to do so (but please follow the requirements of the
-  Apache-2.0 license which Forklift is released under)!
+  you want to fork Forklift or lift code out of it for your own independent experiments to make
+  something more tailored to systemd-sysext workflows, please feel free to do so (but please follow
+  the requirements of the Apache-2.0 license which Forklift is released under)! Warning: my code is
+  still immature enough that it will probably undergo some additional major refactorings, so don't
+  expect too much in terms of quality. Also, I haven't written any software tests yet 🫠.
 - The CLI for modifying pallets (e.g. adding package deployments) is only partially implemented; for
-  anything besides adding/updating repo requirements (`forklift pallet require-repo`), I just use a
-  file browser to manually create the necessary files. This means Forklift doesn't yet have a CLI
-  command roughly analogous to `systemctl enable {unit}`. I plan to eventually add some a more
-  complete CLI for editing pallets.
+  anything besides adding/updating repo requirements (currently `forklift dev pallet add-repo`,
+  though I plan to add `forklift pallet require-repo` as a nicer alias), I just use a file browser
+  to manually create the necessary files. This means Forklift currently doesn't have a CLI
+  command roughly analogous to `systemctl enable {unit}` or `apk add {package}`. I plan to
+  eventually add a more complete CLI for editing pallets.
 - Forklift is a large binary (~20 MB compressed, ~60 MB uncompressed) because it's also designed as
   a tool to manage all Docker Compose apps deployed on a system, and the fastest/easiest way to
-  implement that was by including github.com/docker/compose/v2 as libraries which I use. Making
+  implement that was by including github.com/docker/compose/v2 as a library which I use. Making
   Forklift smaller is not a priority for me in the foreseeable future, but it would be nice to do
   eventually if it doesn't add too much complexity.
