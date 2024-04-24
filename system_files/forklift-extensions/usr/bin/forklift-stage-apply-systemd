@@ -69,7 +69,7 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # Set up a writable /etc overlay in the meantime until systemd 256 is able to make a writable
 # /etc overlay in the presence of confexts:
 ETC_WORKDIR=/var/lib/overlays/workdirs/etc
-mkdir -p $ETCWORKDIR
+mkdir -p $ETC_WORKDIR
 ETC_UPPERDIR=/var/lib/overlays/overrides/etc
 mkdir -p $ETC_UPPERDIR
 mkdir -p $ETC_REBIND
