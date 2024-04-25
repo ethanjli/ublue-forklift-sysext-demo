@@ -26,9 +26,10 @@ ExecStart=bash -c '\
   mount -o bind,uid=$MOUNT_UID,gid=$MOUNT_GID $SOURCE $TARGET \
 '
 # Note: `umount -l` is not recommended in general (see https://unix.stackexchange.com/a/390057)
-# because it just removes the mounts from the namespace while writes to open files can continue;
-# however, we have a read-only mount so it doesn't matter
+# because it just removes the mounts from the namespace while writes to open files can continue:
 ExecStopPost=umount -l $TARGET
+# (if anyone recommends a cleaner way to unmount these paths, please notify @ethanjli on Discord or
+# lietk12@gmail.com !)
 
 [Install]
 WantedBy=default.target
