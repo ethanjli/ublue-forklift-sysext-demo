@@ -1,5 +1,5 @@
 ---
-name: build-ublue-custom
+name: build-os-base
 on:
   pull_request:
     branches:
@@ -92,7 +92,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           containerfiles: |
-            ./Containerfile
+            ./Containerfile-base
           # Postfix image name with -custom to make it a little more descriptive
           # Syntax: https://docs.github.com/en/actions/learn-github-actions/expressions#format
           image: ${{ env.MY_IMAGE_NAME }}
@@ -156,7 +156,7 @@ jobs:
           arch: x86_64
           image_name: ${{ env.MY_IMAGE_NAME }}
           image_repo: ${{ env.IMAGE_REGISTRY }}
-          variant: Silverblue
+          variant: base
           version: 39
           image_tag: "latest"
           iso_name: ${{ env.MY_IMAGE_NAME }}-latest.iso
