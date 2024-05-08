@@ -85,13 +85,18 @@ about the available subcommands.
 
 I will eventually implement a nicer CLI workflow for modifying pallets, but for now in order to
 modify your local copy of the pallet you should directly edit files in
-`~/.local/share/forklift/pallet`. Then you can run `forklift pallet stage` (and reboot again or run
-`forklift-stage-apply-systemd` again) to preview it.
+`~/.local/share/forklift/pallet`. Then you can run `forklift pallet stage` and reboot (or run
+`sudo forklift-stage-apply-systemd` to preview your changes).
 
-Warning: if you have changes which you haven't pushed up to GitHub/etc. and then you run
-`forklift pallet switch {pallet-path}@{version-query}`, your modifications to your pallet will all
-be deleted/overwritten and replaced with the pallet you're switching to! If you are thinking of
-doing that, you should first commit and push your changes to GitHub/GitLab/etc.
+For example, to disable the `dive` sysext, add the line `disabled: true` to
+`~/.local/share/forklift/pallet/deployments/dive-systemd-extension.deploy.yml`, run
+`forklift pallet stage`, and reboot; then `dive` will no longer be available on your system.
+
+Warning: if you have changes in `~/.local/share/forklift/pallet` which you haven't pushed up to
+GitHub/etc. and then you run `forklift pallet switch {pallet-path}@{version-query}`, your
+modifications to your pallet will all be deleted/overwritten and replaced with the pallet you're
+switching to! If you are thinking of doing that, you should first commit and push your changes to
+GitHub/GitLab/etc.
 
 # Explanation
 
