@@ -26,20 +26,8 @@ and which completed successfully, and download the `ublue-forklift-sysext-demo-l
 from it; the download should be ~3 GB. The ZIP archive contains the installer ISO file; you should
 extract the ISO file, create a new VM with it, and proceed through the installer.
 
-After you finish installation, restart the VM, and log in, then you should run:
-
-```
-sudo bootc switch ghcr.io/ethanjli/ublue-forklift-sysext-demo:latest
-```
-
-and then you should reboot. That command is needed to allow this OS image to use systemd system
-extension images built by Flatcar Container Linux's
-[sysext-bakery](https://github.com/flatcar/sysext-bakery), even those system extension images are
-built to only be used in distros with an `os-release` ID of `flatcar`; for more details about this
-dirty hack, refer to a note about the `/usr/lib/os-release` file in the
-["Caveats/Limitations"](#caveatslimitations) section near the end of this readme.
-
-You should also run (**without** `sudo`!):
+After you finish installation, restart the VM, and log in, then you should run
+(**without** `sudo`!):
 
 ```
 just-setup-forklift-staging
