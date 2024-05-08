@@ -46,7 +46,7 @@ That command will enable you to run `forklift pallet switch` (or `forklift palle
 This VM image comes without a Forklift pallet on your first boot, so that you can learn how to use a
 pallet. This guide will use the pallet at the latest commit from the `main` branch of
 [github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports)
-and apply it to your VM in order to add a "hello world" sysext+confext to your VM, but you can make
+and apply it to your VM in order to add a few sysexts+confexts to your VM, but you can make
 your own pallet and use it instead.
 
 To clone and stage the pallet, just run:
@@ -62,28 +62,32 @@ If you run `systemd-sysext status`, you can confirm that there are not yet any s
 system. You can also confirm that the `docker` and `dive` commands do not exist yet, by trying to
 run those commands.
 
-Next, you should then see new extensions if you run `systemd-sysext status`. You should also see:
+Next, you should reboot (or if you're *really* impatient and don't want to reboot, run
+`sudo forklift-stage-apply-systemd`).
 
-- That a new service named `hello-world-extension` ran successfully, if you check its status with
-  `systemctl status hello-world-extension.service`, and that a script at
-  `/usr/bin/hello-world-extension` exists. That script and that systemd service are provided by the
-  `hello-world` extension exported by the Forklift pallet
+Next, you should then see new system extensions if you run `systemd-sysext status`. You should also
+see that:
+
+- A new service named `hello-world-extension` ran successfully, if you check its status with
+  `systemctl status hello-world-extension.service`; and a script at
+  `/usr/bin/hello-world-extension` now exists. This script and this systemd service are provided by
+  the `hello-world` extension exported by the Forklift pallet
   `github.com/ethanjli/pallet-example-exports`.
-- That the `docker` systemd service is running, if you check its status with
+- The `docker` systemd service is now running, if you check its status with
   `systemctl status docker.service`.
-- That if you run `sudo docker image pull alpine:latest` and `sudo docker image ls`, you pull the
-  Docker container image for `alpine:latest`; similarly, you can use Docker however you want.
-- That if you run `sudo dive alpine:latest`, you can use [dive](https://github.com/wagoodman/dive)
-  to browse the container image for the `alpine:latest` Docker container image.
+- If you run `sudo docker image pull alpine:latest` and `sudo docker image ls`, you will have pulled
+  the Docker container image for `alpine:latest`; similarly, you can use Docker however you want.
+- If you run `sudo dive alpine:latest`, you can use [dive](https://github.com/wagoodman/dive)
+  to browse/inspect the contents/structure of the `alpine:latest` Docker container image.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged
-pallet bundle in the stage store. Each time you run `forklift pallet switch` or
-`forklift pallet stage`, forklift will create a new staged pallet bundle in the stage store (which
-is at both `~/.local/share/forklift/stages` and `/var/lib/forklift/stages`). You can query and
-modify the state of your stage store by running `forklift stage show` and by running other
-subcommands of `forklift stage`; if you just run `forklift stage`, it will print some information
-about the available subcommands.
+pallet bundle in the stage store (which is at both `~/.local/share/forklift/stages` and
+`/var/lib/forklift/stages`). Each time you run `forklift pallet switch` or `forklift pallet stage`,
+`forklift` will create a new staged pallet bundle in the stage store. You can query and modify the
+state of your stage store by running `forklift stage show` and by running other subcommands of
+`forklift stage`; if you just run `forklift stage`, it will print some information about the
+available subcommands.
 
 ## Modify a pallet and use it
 
@@ -94,7 +98,8 @@ modify your local copy of the pallet you should directly edit files in
 
 For example, to disable the `dive` sysext, add the line `disabled: true` to
 `~/.local/share/forklift/pallet/deployments/dive-systemd-extension.deploy.yml`, run
-`forklift pallet stage`, and reboot; then `dive` will no longer be available on your system.
+`forklift pallet stage`, and reboot (or run `sudo forklift-stage-apply-systemd); then `dive` will no
+longer be available on your system.
 
 Warning: if you have changes in `~/.local/share/forklift/pallet` which you haven't pushed up to
 GitHub/etc. and then you run `forklift pallet switch {pallet-path}@{version-query}`, your
