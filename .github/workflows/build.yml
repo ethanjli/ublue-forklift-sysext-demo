@@ -156,7 +156,7 @@ jobs:
           arch: x86_64
           image_name: ${{ env.MY_IMAGE_NAME }}
           image_repo: ${{ env.IMAGE_REGISTRY }}
-          variant: Silverblue
+          variant: base
           version: 40
           image_tag: "latest"
           iso_name: ${{ env.MY_IMAGE_NAME }}-latest.iso
