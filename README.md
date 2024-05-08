@@ -19,12 +19,16 @@ anything serious!
 ## Set up your VM
 
 You will need to download the latest version of the installer ISO. To do so, go to
-<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-base.yml>, click on
-the most recent workflow run which was triggered by the `main` branch (not any feature branches! the
-OS images built from feature branches are works-in-progress which might be broken in various ways)
-and which completed successfully, and download the `ublue-forklift-sysext-demo-latest.zip` artifact
-from it; the download should be ~3 GB. The ZIP archive contains the installer ISO file; you should
-extract the ISO file, create a new VM with it, and proceed through the installer.
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-base.yml> (for a
+CLI-only OS image) or
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-bluefin.yml> (for an
+OS image with a GNOME desktop), click on the most recent workflow run which was triggered by the
+`main` branch (not any feature branches! the OS images built from feature branches are
+works-in-progress which are probably broken in various ways) and which completed successfully, and
+download the `ublue-forklift-sysext-demo-latest.zip` or
+`ublue-forklift-sysext-demo-bluefin-latest.zip` artifact from it; the download should be ~3 GB. The
+ZIP archive contains the installer ISO file; you should extract the ISO file, create a new VM with
+it, and proceed through the installer.
 
 After you finish installation, restart the VM, and log in, then you should run
 (**without** `sudo`!):
