@@ -26,6 +26,13 @@ fi
 if mountpoint -q "$CONFEXT_TARGET"; then
   umount -l "$CONFEXT_TARGET"
 fi
+if mountpoint -q /etc; then
+  umount -l /etc
+fi
+ETC_REBIND=/var/lib/overlays/bases/etc
+if mountpoint -q "$ETC_REBIND"; then
+  umount -l "$ETC_REBIND"
+fi
 
 if [ -d $NEXT_BUNDLE_EXTENSIONS ]; then
   # Bind mounts will fail if the targets don't already exist:
@@ -49,9 +56,25 @@ else
   # TODO(ethanjli): mark the next staged pallet as having failed to be applied
 fi
 
-echo "Updating systemd..."
+echo "Updating systemd extensions..."
 systemd-sysext refresh
 systemd-confext refresh
+
+echo "Remounting /etc as a writeable overlay..."
+# Set up a writable /etc overlay in the meantime until systemd 256 is able to make a writable
+# /etc overlay in the presence of confexts:
+ETC_WORKDIR=/var/lib/overlays/workdirs/etc
+mkdir -p $ETC_WORKDIR
+ETC_UPPERDIR=/var/lib/extensions.mutable/etc
+mkdir -p $ETC_UPPERDIR
+mkdir -p $ETC_REBIND
+mount --bind /etc $ETC_REBIND
+mount -t overlay overlay -o workdir=$ETC_WORKDIR,upperdir=$ETC_UPPERDIR,lowerdir=$ETC_REBIND /etc
+# (Note: this might interact extremely poorly with ostree's three-way merge for /etc - I haven't
+# tested it or thought through it very carefully. Use at your own risk, and please file bug
+# reports if you notice bad behavior!)
+
+echo "Updating systemd services..."
 systemctl daemon-reload
 # This was shamelessly ripped from https://www.youtube.com/watch?t=1087&v=EMH8_97OAPg:
 systemctl restart --no-block sockets.target timers.target multi-user.target default.target
