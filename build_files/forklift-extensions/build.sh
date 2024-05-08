@@ -25,3 +25,12 @@ sudo ln -s "forklift-${FORKLIFT_VERSION}" /usr/bin/forklift
 systemctl enable forklift-stage-apply-systemd.service
 
 echo "Done with Forklift setup!"
+
+### (purely for demo) Allow use of sysexts built by Flatcar Container Linux's sysext-bakery
+# Note: this rewrites the `/usr/lib/os-release` file to pretend to match the host OS requirements
+# declared by `extension-release` files in the system extension images built/released in Flatcar
+# Container Linux's sysext-bakery. You should not do this on a real system; instead, you'll need to
+# fork sysext-bakery and re-build all the system extension images with `extension-release` files
+# which are compatible with your host OS!
+sed -i '/^ID/s/fedora/flatcar/' /usr/lib/os-release
+echo "SYSEXT_LEVEL=1.0" >> /usr/lib/os-release

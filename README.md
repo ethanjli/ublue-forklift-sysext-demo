@@ -4,17 +4,12 @@ A simple demo of using Forklift to distribute & manage sysexts in a Fedora OSTre
 
 # Introduction
 
-This repository provides a simple command-line-only demo for integrating
+This repository provides bootable OS container images (and corresponding installer ISOs) for a
+simple [ublue](https://universal-blue.org/)-based demo for integrating
 [Forklift](https://github.com/PlanktoScope/forklift) with
 [systemd-sysext](https://www.freedesktop.org/software/systemd/man/latest/systemd-sysext.html)
-in a Fedora OSTree-based system meant to be run in a VM. To keep this demo small enough that you
-don't try to rely on it for serious use, the OS image does not include a graphical desktop
-environment (actually, that's just an excuse: I was initially hoping that layering my OS image over
-[ghcr.io/ublue-os/base-main](https://github.com/ublue-os/main/pkgs/container/base-main)
-would enable me to generate an installer ISO smaller than 2 GB, so that I could upload it as an
-attachment to GitHub Releases; but the
-[JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
-makes a 3 GB installer anyways 🥲).
+in a Fedora OSTree-based system. You should not use the images provided by this repository for
+anything serious!
 
 # Usage
 
@@ -24,15 +19,27 @@ makes a 3 GB installer anyways 🥲).
 ## Set up your VM
 
 You will need to download the latest version of the installer ISO. To do so, go to
-<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions>, click on the most recent workflow
-run which was triggered by the `main` branch (not any feature branches! the images built from
-feature branches have not yet been fully tested) and which completed successfully, and download the
-`ublue-forklift-sysext-demo-latest.zip` artifact from it (the download should be ~3 GB). The ZIP
-archive contains the installer ISO file; you should extract the ISO file, create a new VM with it,
-and proceed through the installer.
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-base.yml>, click on
+the most recent workflow run which was triggered by the `main` branch (not any feature branches! the
+OS images built from feature branches are works-in-progress which might be broken in various ways)
+and which completed successfully, and download the `ublue-forklift-sysext-demo-latest.zip` artifact
+from it; the download should be ~3 GB. The ZIP archive contains the installer ISO file; you should
+extract the ISO file, create a new VM with it, and proceed through the installer.
 
-After you finish installation, restart the VM, and log in, then you should run (**without**
-`sudo`!):
+After you finish installation, restart the VM, and log in, then you should run:
+
+```
+sudo bootc switch ghcr.io/ethanjli/ublue-forklift-sysext-demo:latest
+```
+
+and then you should reboot. That command is needed to allow this OS image to use systemd system
+extension images built by Flatcar Container Linux's
+[sysext-bakery](https://github.com/flatcar/sysext-bakery), even those system extension images are
+built to only be used in distros with an `os-release` ID of `flatcar`; for more details about this
+dirty hack, refer to a note about the `/usr/lib/os-release` file in the
+["Caveats/Limitations"](#caveatslimitations) section near the end of this readme.
+
+You should also run (**without** `sudo`!):
 
 ```
 just-setup-forklift-staging
@@ -41,9 +48,6 @@ just-setup-forklift-staging
 That command will enable you to run `forklift pallet switch` (or `forklift pallet stage`) commands
 (described below) without having to use `sudo -E` and without having to set
 `FORKLIFT_STAGE_STORE=/var/lib/forklift/stages` as an environment variable for those commands.
-
-If you run `systemd-sysext status` and `systemd-confext status`, you can confirm that there are not
-yet any systemd sysexts/confexts in your VM.
 
 ## Use a pallet
 
@@ -62,18 +66,23 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 (Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
 saved!!)
 
-If you run `systemd-sysext status` and `systemd-confext status` again, you can confirm that
-there are still no sysexts/confexts yet on your system.
+If you run `systemd-sysext status`, you can confirm that there are not yet any sysexts on your
+system. You can also confirm that the `docker` and `dive` commands do not exist yet, by trying to
+run those commands.
 
-Next, you should reboot (or, if you're really *really* impatient and don't want to reboot, run
-`sudo forklift-stage-apply-systemd`).
+Next, you should then see new extensions if you run `systemd-sysext status`. You should also see:
 
-Next, you should then see new extensions if you run `systemd-sysext status` and
-`systemd-confext status`. You should also see that a new service ran successfully, if you check its
-status with `systemctl status hello-world-extension.service`. You should also see a script at
-`/usr/bin/hello-world-extension`. That script and that systemd service are provided by the
-`hello-world` extension (loaded as a sysext and also as a confext) exported by the Forklift pallet
-`github.com/ethanjli/pallet-example-exports`.
+- That a new service named `hello-world-extension` ran successfully, if you check its status with
+  `systemctl status hello-world-extension.service`, and that a script at
+  `/usr/bin/hello-world-extension` exists. That script and that systemd service are provided by the
+  `hello-world` extension exported by the Forklift pallet
+  `github.com/ethanjli/pallet-example-exports`.
+- That the `docker` systemd service is running, if you check its status with
+  `systemctl status docker.service`.
+- That if you run `sudo docker image pull alpine:latest` and `sudo docker image ls`, you pull the
+  Docker container image for `alpine:latest`; similarly, you can use Docker however you want.
+- That if you run `sudo dive alpine:latest`, you can use [dive](https://github.com/wagoodman/dive)
+  to browse the container image for the `alpine:latest` Docker container image.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged
@@ -198,8 +207,26 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
    is not installed, so for now you should just avoid running `forklift stage prune-bundles` unless
    you want to delete everything in your stage store).
 
+## Where do `docker` and `dive` come from?
+
+The `github.com/ethanjli/pallet-example-exports` pallet is configured to download the Docker system
+extension image provided by
+[Flatcar Container Linux's sysext-bakery](https://github.com/flatcar/sysext-bakery/releases/tag/latest)
+and make it available to systemd-sysext; the pallet also adds a `docker-service-enablement`
+sysext & confext which enables the `docker.service` unit provided by the Docker sysext, and which
+prepares the host so that it can run Docker (namely, adding a `docker` group so that `docker.socket`
+will work).
+
+By contrast,
+[`dive`](https://github.com/wagoodman/dive) does not have an associated pre-built system extension
+image. Instead, the `github.com/ethanjli/pallet-example-exports` pallet is configured to download it
+from [GitHub Releases](https://github.com/wagoodman/dive/releases) and make it available to
+systemd-sysext as part of a system extension directory assembled and exported by Forklift.
+
 
 # Caveats/Limitations
+
+Hacks/workarounds:
 
 - This demo disables SELinux policy enforcement because of
   <https://github.com/systemd/systemd/issues/23971>, and because I don't have enough experience with
@@ -208,14 +235,22 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
   I make in this demo for Forklift?), and because this is just a demo. If someone can fix
   the SELinux policies for this demo, please submit a pull request at
   <https://github.com/ethanjli/ublue-forklift-sysext-demo/pulls>!
-- Currently Forklift can only handle plain-directory sysext images. I am anyways planning to add
-  functionality to Forklift to download external/online files into the export directory (and it will
-  probably be heavily inspired by
-  [how chezmoi does a similar task](https://www.chezmoi.io/user-guide/include-files-from-elsewhere/)),
-  and then Forklift should be able to handle other sysext image formats downloadable from, for
-  example, files attached to GitHub Releases or arbitrary URLs. Once I do that, I'd like to add a
-  demo of adding a Docker sysext (and system services) into this demo - preferably a sysext provided
-  by [flatcar/sysext-bakery](https://github.com/flatcar/sysext-bakery).
+- Because Flatcar's Docker system extension images are built to only be used on hosts whose
+  `/usr/lib/os-release` files include `ID=flatcar` and `SYSEXT_LEVEL=1.0`, the bootable OS container
+  images built by this repository lie that their OS ID is `flatcar` instead of `fedora` (even though
+  they are still just Fedora Linux), though the installer ISOs still use the standard (correct)
+  values `/usr/lib/os-release`, so after installing we still need to rebase onto the bootable OS
+  container provided by this repo. Yes, rewriting the os-release file's distro ID is a massive hack;
+  in my defense, I don't want to maintain my own fork of Flatcar's sysext-bakery just for a demo.
+- Docker requires a mutable `/etc` in order to correctly set up firewall rules with
+  firewalld/iptables, but systemd 256 (which is supposed to make it possible to have a mutable
+  `/etc` even when confexts are active) has not been released yet. As a temporary workaround, this
+  repo uses Forklift to make a mutable overlay for `/etc` over the confexts; however, this makes
+  `systemd-confext status` unable to detect the active confexts (even though they are indeed
+  loaded and active).
+
+Scope:
+
 - To keep Forklift simple, I do not want to add functionality into Forklift to deduplicate large
   files across staged pallet bundles in Forklift's stage store. However, I would be interested in
   supporting use of OCI images rather than Git repos to distribute Forklift repos & pallets as well
