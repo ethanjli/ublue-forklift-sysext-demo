@@ -157,7 +157,7 @@ jobs:
           image_name: ${{ env.MY_IMAGE_NAME }}
           image_repo: ${{ env.IMAGE_REGISTRY }}
           variant: Silverblue
-          version: 40
+          version: 39
           image_tag: "latest"
           iso_name: ${{ env.MY_IMAGE_NAME }}-latest.iso
           enable_cache_dnf: "false"
