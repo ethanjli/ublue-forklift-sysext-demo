@@ -82,7 +82,7 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 # consequences of doing so; but I'm personally not sure I fully understand those consequences, so
 # I'll just stick with what Flatcar Container Linux uses/used, tyvm)
 
-if [ -f /var/run/docker.sock ]; then
+if [ -S /var/run/docker.sock ]; then
   echo "Updating Docker Compose apps..."
   forklift stage apply
 else
