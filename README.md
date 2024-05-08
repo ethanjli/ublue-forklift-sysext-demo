@@ -66,7 +66,9 @@ If you run `systemd-sysext status` and `systemd-confext status` again, you can c
 there are still no sysexts/confexts yet on your system. You can also confirm that the `docker` and
 `dive` commands do not exist yet, by trying to run those commands.
 
-Next, you should reboot (or, if you're really *really* impatient and don't want to reboot, run
+Now you should run `sudo groupadd docker`, because that will be needed by the `docker.socket`
+systemd unit which will be added by a sysext for Docker exported by the Forklift pallet. Then you
+should reboot (or, if you're really *really* impatient and don't want to reboot, run
 `sudo forklift-stage-apply-systemd`).
 
 Next, you should then see new extensions if you run `systemd-sysext status` and
@@ -79,10 +81,10 @@ Next, you should then see new extensions if you run `systemd-sysext status` and
   `github.com/ethanjli/pallet-example-exports`.
 - That the `docker` systemd service is running, if you check its status with
   `systemctl status docker.service`.
-- That if you run `docker image pull alpine:latest` and `docker image ls`, you pull the Docker
+- That if you run `sudo docker image pull alpine:latest` and `docker image ls`, you pull the Docker
   container image for `alpine:latest`; similarly, you can use Docker however you want.
-- That if you run `dive alpine`, you can use [dive](https://github.com/wagoodman/dive) to browse the
-  container image for the `alpine:latest` Docker container image.
+- That if you run `sudo dive alpine:latest`, you can use [dive](https://github.com/wagoodman/dive)
+  to browse the container image for the `alpine:latest` Docker container image.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged
@@ -212,8 +214,10 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
 The `github.com/ethanjli/pallet-example-exports` pallet is configured to download the Docker system
 extension image provided by
 [Flatcar Container Linux's sysext-bakery](https://github.com/flatcar/sysext-bakery/releases/tag/latest)
-and make it available to systemd-sysext; the pallet also adds a `docker-service-enablement` confext
-which enables the `docker.service` unit provided by the Docker sysext.
+and make it available to systemd-sysext; the pallet also adds a `docker-service-enablement`
+sysext & confext which enables the `docker.service` unit provided by the Docker sysext, and which
+prepares the host so that it can run Docker (namely, adding a `docker` group so that `docker.socket`
+will work).
 
 By contrast,
 [`dive`](https://github.com/wagoodman/dive) does not have an associated pre-built system extension
@@ -288,3 +292,11 @@ systemd-sysext as part of a system extension directory assembled and exported by
   by this repository lie that their OS ID is `flatcar` instead of `fedora` (even though they are
   still just Fedora Linux). Yes, this is a massive hack; in my defense, I don't want to maintain my
   own fork of Flatcar's sysext-bakery just for a demo.
+- If you need to create any users or groups (e.g. because `docker.socket` requires the existence of
+  a `docker` group), either you'll have to provision them using `sysusers.d` drop-in files for
+  [systemd-sysusers](https://www.freedesktop.org/software/systemd/man/latest/sysusers.d.html) in
+  the base OS image or you'll have to have a writeable overlay for `/etc` (e.g. as demonstrated by
+  [PR 1](https://github.com/ethanjli/ublue-forklift-sysext-demo/pull/1) of this repo) and then make
+  a systemd service to create the group during boot. Unfortunately, it's probably impossible to make
+  `systemd-sysusers.service` use drop-in `sysusers.d` files provided by Forklift (either as direct
+  overlays or in sysexts/confexts) because that would introduce a circular service ordering.
