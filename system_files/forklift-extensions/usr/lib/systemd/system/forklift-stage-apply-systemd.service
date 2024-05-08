@@ -11,9 +11,6 @@ After=var.mount
 Requires=systemd-remount-fs.service
 After=systemd-remount-fs.service
 Before=systemd-sysext.service
-# This ordering relationship is needed for any overlays/sysexts/confexts which add drop-ins into
-# sysusers.d:
-Before=systemd-sysusers.service
 Conflicts=umount.target
 Before=umount.target
 
