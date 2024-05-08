@@ -4,17 +4,10 @@ A simple demo of using Forklift to distribute & manage sysexts in a Fedora OSTre
 
 # Introduction
 
-This repository provides a simple command-line-only demo for integrating
-[Forklift](https://github.com/PlanktoScope/forklift) with
+This repository provides a simple [Bluefin](https://github.com/ublue-os/bluefin)-based demo for
+integrating [Forklift](https://github.com/PlanktoScope/forklift) with
 [systemd-sysext](https://www.freedesktop.org/software/systemd/man/latest/systemd-sysext.html)
-in a Fedora OSTree-based system meant to be run in a VM. To keep this demo small enough that you
-don't try to rely on it for serious use, the OS image does not include a graphical desktop
-environment (actually, that's just an excuse: I was initially hoping that layering my OS image over
-[ghcr.io/ublue-os/base-main](https://github.com/ublue-os/main/pkgs/container/base-main)
-would enable me to generate an installer ISO smaller than 2 GB, so that I could upload it as an
-attachment to GitHub Releases; but the
-[JasonN3/build-container-installer](https://github.com/JasonN3/build-container-installer) action
-makes a 3 GB installer anyways 🥲).
+in a Fedora OSTree-based system. You should not use this repository for anything serious!
 
 # Usage
 
