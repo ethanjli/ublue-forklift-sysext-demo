@@ -25,9 +25,11 @@ makes a 3 GB installer anyways 🥲).
 
 You will need to download the latest version of the installer ISO. To do so, go to
 <https://github.com/ethanjli/ublue-forklift-sysext-demo/actions>, click on the most recent workflow
-run which completed successfully, and download the `ublue-forklift-sysext-demo-latest.zip` artifact
-from it (the download should be ~3 GB). The ZIP file contains the installer ISO file; you should
-extract the ISO file, create a new VM with it, and proceed through the installer.
+run which was triggered by the `main` branch (not any feature branches! the images built from
+feature branches have not yet been fully tested) and which completed successfully, and download the
+`ublue-forklift-sysext-demo-latest.zip` artifact from it (the download should be ~3 GB). The ZIP
+archive contains the installer ISO file; you should extract the ISO file, create a new VM with it,
+and proceed through the installer.
 
 After you finish installation, restart the VM, and log in, then you should run (**without**
 `sudo`!):
