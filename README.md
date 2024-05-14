@@ -128,7 +128,7 @@ changes).
 
 For example, to disable the `dive` sysext, add the line `disabled: true` to
 `~/.local/share/forklift/pallet/deployments/dive.deploy.yml`, run
-`forklift plt stage`, and reboot (or run `sudo forklift-stage-apply-systemd); then `dive` will no
+`forklift plt stage`, and reboot (or run `sudo forklift-stage-apply-systemd`); then `dive` will no
 longer be available on your system.
 
 # Explanation
