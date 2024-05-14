@@ -11,7 +11,7 @@ rpm-ostree install screen
 
 ### Install Forklift:
 
-FORKLIFT_VERSION="0.7.2-alpha.1"
+FORKLIFT_VERSION="0.7.2-alpha.2"
 # Do we need any other substitutions? We use goreleaser's defaults (e.g. `arm64` for 64-bit ARM, and
 # `arm` for armv7); it probably doesn't matter because for now ublue only has amd64 builds:
 FORKLIFT_ARCH="$(echo "$ARCH" | sed -e 's/x86_64/amd64/')"
