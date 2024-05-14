@@ -287,10 +287,10 @@ Design/scope:
   do not plan to have Forklift manage FS mounts itself. So the workflow to change/update the
   sysexts/confexts on the system will probably always involve either:
 
-      1. totally replacing the local pallet from a remote source, or
-      2. modifying the local pallet (and then staging the modified
-      pallet, either explicitly by running `forklift plt stage` afterwards or implicitly by
-      including the `--stage` flag on certain pallet-modifying subcommands of `forklift plt`),
+    1. totally replacing the local pallet from a remote source, or
+    2. modifying the local pallet (and then staging the modified
+       pallet, either explicitly by running `forklift plt stage` afterwards or implicitly by
+       including the `--stage` flag on certain pallet-modifying subcommands of `forklift plt`),
 
   and then either:
 
