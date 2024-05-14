@@ -104,23 +104,21 @@ GitHub/GitLab/etc. to prevent permanent loss of your changes.
 
 To modify your local copy of the pallet, you can use various subcommands of `forklift plt`, e.g.:
 
-- To disable the `dive-systemd-extension` package deployment (which makes the `dive` sysext
-  available to systemd), you can run `forklift plt disable-depl dive-systemd-extension`.
-  To re-enable the package deployment, you can run
-  `forklift plt enable-depl dive-systemd-extension`.
-- To disable the `systemd-service-enablement` feature flag (which enables `docker.service` as part
-  of systemd's service startup process) in the `docker-systemd-extension` package deployment,
-  you can run `forklift plt disable-depl-feat docker-systemd-extension systemd-service-enablement`.
-  To re-enable the feature flag, you can run
-  `forklift plt enable-depl-feat docker-systemd-extension systemd-service-enablement`.
+- To disable the `dive` package deployment (which makes the `dive` sysext available to systemd), you
+  can run `forklift plt disable-depl dive`. To re-enable the package deployment, you can run
+  `forklift plt enable-depl dive`.
+- To disable the `service` feature flag (which provides a confext to enable `docker.service` as part
+  of systemd's service startup process) in the `docker` package deployment, you can run
+  `forklift plt disable-depl-feat docker service`. To re-enable the feature flag, you can run
+  `forklift plt enable-depl-feat docker service`.
 
 Instead of running these subcommands and then running `forklift plt stage` to stage your modified
 pallet, you can enable an optional `--stage` flag in these subcommands to immediately stage the
 pallet after modifying the pallet. For example, you can run
-`forklift plt disable-depl --stage dive-systemd-extension` and reboot, after which the `dive`
-sysext will no longer be available to systemd. So you can think of
-`forklift plt enable-depl --stage` and `forklift plt disable-depl --stage` as the rough (but more
-verbose) equivalents of `systemctl enable` and `systemctl disable`.
+`forklift plt disable-depl --stage dive` and reboot, after which the `dive` sysext will no longer be
+available to systemd. So you can think of `forklift plt enable-depl --stage` and
+`forklift plt disable-depl --stage` as the rough (but more verbose) equivalents of
+`systemctl enable` and `systemctl disable`.
 
 ### By editing YAML files
 
@@ -129,7 +127,7 @@ Alternatively, you can directly edit files in `~/.local/share/forklift/pallet` a
 changes).
 
 For example, to disable the `dive` sysext, add the line `disabled: true` to
-`~/.local/share/forklift/pallet/deployments/dive-systemd-extension.deploy.yml`, run
+`~/.local/share/forklift/pallet/deployments/dive.deploy.yml`, run
 `forklift plt stage`, and reboot (or run `sudo forklift-stage-apply-systemd); then `dive` will no
 longer be available on your system.
 
@@ -335,11 +333,3 @@ Design/scope:
   to implement that was to have Forklift import github.com/docker/compose/v2 as a library. Making
   Forklift smaller is not a priority for me in the foreseeable future, but it would be nice to do
   eventually - assuming it doesn't add too much complexity.
-- The names of package deployments (e.g. `dive-systemd-extension` and `docker-systemd-extension`)
-  and feature flags (e.g. `systemd-service-enablement`) in the
-  github.com/ethanjli/pallet-example-exports pallet used by this demo are intentionally verbose to
-  be clear as examples, and they are more verbose than what you'd want for an ergonomic CLI user
-  experience. For example, you'd probably want your package deployments to be named something like
-  `dive` and `docker` instead (so that commands can instead look like
-  `forklift plt enable-depl dive`), and your feature flags to be named something like `service`
-  instead (so that commands can instead look like `forklift plt enable-depl-feat docker service`)
