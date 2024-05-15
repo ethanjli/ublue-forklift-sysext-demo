@@ -7,9 +7,9 @@ RUN dnf install -y \
       ibm-plex-mono-fonts \
       jetbrains-mono-fonts-all \
       mozilla-fira-mono-fonts \
-      powerline-fonts \
+      powerline-fonts
 
-FROM scratch as sysext
+FROM scratch
 COPY --from=fonts /usr/share/fonts /usr/share/fontconfig /usr/share/
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.fedora-fonts
 
