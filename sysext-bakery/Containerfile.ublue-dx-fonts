@@ -11,5 +11,5 @@ RUN dnf install -y \
 
 FROM scratch
 COPY --from=fonts /usr/share/fonts /usr/share/fontconfig /usr/share/
-COPY extension-release-any /usr/lib/extension-release.d/extension-release.fedora-fonts
+COPY extension-release-any /usr/lib/extension-release.d/extension-release.ublue-dx-fonts
 
