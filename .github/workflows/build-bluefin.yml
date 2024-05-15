@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '**/README.md'
       - 'sysext-bakery/**'
+  merge_group:
   workflow_dispatch:
 
 env:

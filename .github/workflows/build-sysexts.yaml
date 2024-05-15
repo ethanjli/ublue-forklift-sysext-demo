@@ -1,5 +1,7 @@
 name: build-systemd-sysexts
 on:
+  schedule:
+    - cron: '0 8,20 * * *'  # 8am and 8pm every day
   pull_request:
     branches:
       - main
@@ -11,6 +13,7 @@ on:
       - 'sysext-bakery/**'
       - '!sysext-bakery/README.md'
       - '!sysext-bakery/**/README.md'
+  merge_group:
   workflow_dispatch:
 
 jobs:
