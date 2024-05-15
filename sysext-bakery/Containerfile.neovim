@@ -3,7 +3,7 @@ RUN apk -U add neovim neovim-doc
 
 FROM alpine:latest as flatwrap
 RUN apk -U add bubblewrap
-COPY --from alpine-neovim * /tmp/alpine-neovim
+COPY --from=alpine-neovim * /tmp/alpine-neovim
 COPY flatwrap.sh .
 RUN OS="_any" ARCH="" RELOAD="0" KEEP="1" ./flatwrap.sh /tmp/alpine-neovim neovim /usr/bin/nvim
 
