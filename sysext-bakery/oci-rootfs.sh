@@ -28,16 +28,17 @@ elif [ "${ARCH}" = "aarch64" ] || [ "${ARCH}" = "arm64" ]; then
   SUFFIX="v8"
 fi
 
-IMAGE="${REGISTRY}/${ARCH}${SUFFIX}/${IMAGE}"
+IMAGE="${REGISTRY}/${IMAGE}"
 
 DOCKER="docker"
 if command -v podman >/dev/null; then
   DOCKER="podman"
 fi
+echo "Using ${DOCKER}"
 
 rm -rf "${FOLDER}"
 if [ "${FETCH}" = 1 ]; then
-  "${DOCKER}" pull "${IMAGE}"
+  "${DOCKER}" pull --platform "linux/${ARCH}${SUFFIX}" "${IMAGE}"
 fi
 if [ "${CMD}" != "" ]; then
   ID="$$"

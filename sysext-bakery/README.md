@@ -9,9 +9,10 @@ experimental system extension images in OCI container images, for use with
 
 The `flatwrap.sh`, and `oci-rootfs.sh` scripts in this directory were copied verbatim
 from Apache-2.0-licensed files with the same names written by [@pothos](https://github.com/pothos)
-in [flatcar/sysext-bakery#74](https://github.com/flatcar/sysext-bakery/pull/74).
-Then `oci-rootfs.sh` was modified online 50 to replace `docker` with `${DOCKER}`; this fix will be
-submitted in a pull request upstream.
+and downloaded from
+[flatcar/sysext-bakery e3534d3](https://github.com/flatcar/sysext-bakery/commit/e3534d3).
+The `oci-rootfs.sh` script was also modified to enable compatibility with a wider variety of
+container images (this change will be submitted as an upstream PR after testing).
 The `bake.sh` script in this directory was copied verbatim
 from the Apache-2.0-licensed file with the same name written by [@pothos](https://github.com/pothos)
 and downloaded from
