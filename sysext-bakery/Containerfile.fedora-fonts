@@ -9,7 +9,7 @@ RUN dnf install -y \
       mozilla-fira-mono-fonts \
       powerline-fonts \
 
-FROM scratch
+FROM scratch as sysext
 COPY --from=fonts /usr/share/fonts /usr/share/fontconfig /usr/share/
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.fedora-fonts
 
