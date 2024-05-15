@@ -19,4 +19,3 @@ RUN OS="_any" ARCH="" RELOAD="0" KEEP="1" ./flatwrap.sh /tmp/original neovim /us
 FROM scratch
 COPY --from=flatwrapped neovim/usr /usr
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.neovim
-
