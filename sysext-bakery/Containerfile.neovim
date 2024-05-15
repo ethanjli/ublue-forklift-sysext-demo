@@ -2,7 +2,7 @@ FROM alpine:latest as alpine-neovim
 RUN apk -U add neovim neovim-doc
 
 FROM alpine:latest as flatwrap
-RUN apk -U add bubblewrap
+RUN apk -U add bubblewrap bash
 COPY --from=alpine-neovim /bin /tmp/alpine-neovim/bin
 COPY --from=alpine-neovim /etc /tmp/alpine-neovim/etc
 COPY --from=alpine-neovim /lib /tmp/alpine-neovim/lib
