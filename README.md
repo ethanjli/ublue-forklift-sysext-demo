@@ -59,8 +59,11 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 saved!!)
 
 If you run `systemd-sysext status`, you can confirm that there are not yet any sysexts on your
-system. You can also confirm that the `docker` and `dive` and `crane` commands do not exist yet,
-by trying to run those commands.
+system. You can also confirm that the `docker`, `dive`, `crane`, `nvim`, and `go` commands do not
+exist yet, by trying to run those commands. You can also confirm that the "JetBrains Mono" fonts
+do not exist yet, by looking for it in the list of system fonts when trying to set a custom
+font in the Ptyxis terminal (Ptyxis is available if you're using the Bluefin-based OS image provided
+by this repo).
 
 Next, you should reboot (or if you're *really* impatient and don't want to reboot, run
 `sudo forklift-stage-apply-systemd`).
@@ -82,6 +85,17 @@ see that:
 - If you run `crane export alpine:latest - | tar -tvf - | less`, you can use
   [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)
   to list the files in the `alpine:latest` Docker container image.
+- If you run `nvim`, you can use [neovim](https://github.com/neovim/neovim); furthermore, if you
+  enter the `:help nvim` command, you will see help text which is only available because the
+  system extension which provides neovim via
+  [an Alpine Linux package](https://pkgs.alpinelinux.org/package/edge/community/x86_64/neovim)
+  also includes the
+  [neovim-doc package](https://pkgs.alpinelinux.org/package/edge/community/x86_64/neovim-doc). And
+  if you run `readelf -a /usr/local/neovim/usr/bin/nvim | grep -i musl`, you can see that `nvim`
+  was compiled for use with musl rather than glibc.
+- If you open the Ptyxis terminal settings (assuming you're using the Bluefin-based OS image
+  provided by this repo) and open the window to set a custom font, you will see the "JetBrains Mono"
+  fonts appear in the font selection window.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged
@@ -265,10 +279,26 @@ has an associated multi-arch Docker container image maintained by Chainguard at
 [cgr.dev/chainguard/crane](https://images.chainguard.dev/directory/image/crane/versions). The
 `github.com/ethanjli/pallet-example-exports` pallet is configured to extract the binary from either
 the `amd64` or `arm64` container image (which is automatically selected depending on the CPU
-architecture of the host - or, to be precise, depending on the CPU architecture target of the
-`forklift` tool) and make it available to systemd-sysext as part of a system extension directory
-assembled and exported by Forklift.
+architecture target of the `forklift` tool) and make it available to systemd-sysext as part of a
+system extension directory assembled and exported by Forklift.
 
+### Neovim
+
+Unlike `docker`, `dive`, and `crane`, [`nvim`](https://github.com/neovim/neovim) is not available as
+a statically-linked binary - so it depends on system libraries (for example, trying to run the
+binaries from [Neovim's GitHub Releases](https://github.com/neovim/neovim/releases) on Alpine Linux
+will not work due to the lack of glibc; instead, Alpine Linux's package for Neovim needs to be
+installed to use Neovim on Alpine Linux). This repository includes a GitHub
+Actions workflow to automatically build a multi-arch container image which includes a `.raw` system
+extension image file with `nvim`, using
+[oci-rootfs](https://github.com/flatcar/sysext-bakery/blob/main/oci-rootfs.sh) and
+[flatwrap](https://github.com/flatcar/sysext-bakery/blob/main/flatwrap.sh) with
+[Alpine Linux's neovim package](https://pkgs.alpinelinux.org/package/edge/community/x86/neovim)
+(which is linked against musl) to make `nvim` work without any problems as a sysext on glibc-based
+systems. The `github.com/ethanjli/pallet-example-exports` pallet is configured to extract the `.raw`
+system extension image from either the `amd64` or `arm64` version of the resulting multi-arch
+container image (with the architecture automatically selected depending on the CPU architecture
+target of the `forklift` tool) and make it available to systemd-sysext.
 
 # Caveats/Limitations
 
