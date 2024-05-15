@@ -59,8 +59,8 @@ forklift pallet switch github.com/ethanjli/pallet-example-exports@main
 saved!!)
 
 If you run `systemd-sysext status`, you can confirm that there are not yet any sysexts on your
-system. You can also confirm that the `docker` and `dive` commands do not exist yet, by trying to
-run those commands.
+system. You can also confirm that the `docker` and `dive` and `crane` commands do not exist yet,
+by trying to run those commands.
 
 Next, you should reboot (or if you're *really* impatient and don't want to reboot, run
 `sudo forklift-stage-apply-systemd`).
@@ -79,6 +79,9 @@ see that:
   the Docker container image for `alpine:latest`; similarly, you can use Docker however you want.
 - If you run `sudo dive alpine:latest`, you can use [dive](https://github.com/wagoodman/dive)
   to browse/inspect the contents/structure of the `alpine:latest` Docker container image.
+- If you run `crane export alpine:latest - | tar -tvf - | less`, you can use
+  [crane](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)
+  to list the files in the `alpine:latest` Docker container image.
 
 You can switch to another pallet from GitHub/GitLab/etc. using the `forklift pallet switch` command;
 it will totally replace the contents of `~/.local/share/forklift/pallet` and create a new staged
@@ -233,7 +236,9 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
    is not installed, so for now you should just avoid running `forklift stage prune-bundles` unless
    you want to delete everything in your stage store).
 
-## Where do `docker` and `dive` come from?
+## Where do `docker`, `dive`, etc., come from?
+
+### `docker`
 
 The `github.com/ethanjli/pallet-example-exports` pallet is configured to download the Docker system
 extension image provided by
@@ -243,11 +248,26 @@ sysext & confext which enables the `docker.service` unit provided by the Docker 
 prepares the host so that it can run Docker (namely, adding a `docker` group so that `docker.socket`
 will work).
 
+### `dive`
+
 By contrast,
 [`dive`](https://github.com/wagoodman/dive) does not have an associated pre-built system extension
-image. Instead, the `github.com/ethanjli/pallet-example-exports` pallet is configured to download it
-from [GitHub Releases](https://github.com/wagoodman/dive/releases) and make it available to
-systemd-sysext as part of a system extension directory assembled and exported by Forklift.
+image. Instead, the `github.com/ethanjli/pallet-example-exports` pallet is configured to download
+the amd64 binary from [GitHub Releases](https://github.com/wagoodman/dive/releases) and make it
+available to systemd-sysext as part of a system extension directory assembled and exported by
+Forklift.
+
+### `crane`
+
+Unlike `dive`,
+[`crane`](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)
+has an associated multi-arch Docker container image maintained by Chainguard at
+[cgr.dev/chainguard/crane](https://images.chainguard.dev/directory/image/crane/versions). The
+`github.com/ethanjli/pallet-example-exports` pallet is configured to extract the binary from either
+the `amd64` or `arm64` container image (which is automatically selected depending on the CPU
+architecture of the host - or, to be precise, depending on the CPU architecture target of the
+`forklift` tool) and make it available to systemd-sysext as part of a system extension directory
+assembled and exported by Forklift.
 
 
 # Caveats/Limitations
