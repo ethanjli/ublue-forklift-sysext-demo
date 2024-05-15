@@ -1,6 +1,4 @@
-name: Build systemd-sysext images
-on:
-  push:
+name: build-systemd-sysexts
 on:
   pull_request:
     branches:
