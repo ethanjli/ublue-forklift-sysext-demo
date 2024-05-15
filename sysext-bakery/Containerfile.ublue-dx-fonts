@@ -10,6 +10,7 @@ RUN dnf install -y \
       powerline-fonts
 
 FROM scratch
-COPY --from=fonts /usr/share/fonts /usr/share/fontconfig /usr/share/
+COPY --from=fonts /usr/share/fonts /usr/share/fonts
+COPY --from=fonts /usr/share/fontconfig /usr/share/fontconfig
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.ublue-dx-fonts
 
