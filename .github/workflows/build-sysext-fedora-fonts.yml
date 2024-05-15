@@ -70,7 +70,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./sysext-bakery
-          file: Containerfile.fedora-fonts
+          file: ./sysext-bakery/Containerfile.fedora-fonts
           pull: true
           push: ${{ (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork) || github.event_name == 'push' || github.event_name == 'push tag' }}
           platforms: ${{ matrix.platform }}
