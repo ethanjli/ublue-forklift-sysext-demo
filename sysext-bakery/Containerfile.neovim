@@ -2,7 +2,11 @@ FROM alpine:latest as original
 RUN apk -U add neovim neovim-doc
 
 FROM alpine:latest as flatwrapped
-RUN apk -U add bubblewrap bash coreutils
+RUN apk -U add \
+  bubblewrap \
+  bash \
+  coreutils \
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 COPY --from=original /lib /tmp/original/lib
