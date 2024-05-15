@@ -1,11 +1,14 @@
 ---
 name: build-os-bluefin
 on:
+  schedule:
+    - cron: '05 10 * * *'  # 10:05am UTC everyday
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '05 10 * * *'  # 10:05am UTC everyday
+    paths-ignore:
+      - '**/README.md'
+      - 'sysext-bakery/**'
   push:
     branches:
       - main
