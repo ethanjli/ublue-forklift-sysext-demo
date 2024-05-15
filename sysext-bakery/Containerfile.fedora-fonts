@@ -1,0 +1,16 @@
+FROM fedora:latest as fonts
+RUN dnf install -y \
+      adobe-source-code-pro-fonts \
+      cascadia-code-fonts \
+      google-droid-sans-mono-fonts \
+      google-go-mono-fonts \
+      ibm-plex-mono-fonts \
+      jetbrains-mono-fonts-all \
+      mozilla-fira-mono-fonts \
+      powerline-fonts \
+
+FROM scratch
+COPY --from=fonts /usr/share/fonts /usr/share/fonts
+COPY --from=fonts /usr/share/fontconfig /usr/share/fontconfig
+COPY extension-release-any /usr/lib/extension-release.d/extension-release.fedora-fonts
+
