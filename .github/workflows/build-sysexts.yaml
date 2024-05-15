@@ -1,0 +1,42 @@
+name: Build systemd-sysext images
+on:
+  push:
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - 'sysext-bakery/**'
+      - '!sysext-bakery/README.md'
+      - '!sysext-bakery/**/README.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    permissions:
+      # allow the action to create a release
+      contents: write
+    steps:
+      # checkout the sources
+      - uses: actions/checkout@v4
+
+      # prepare build host
+      - name: install prerequisites
+        run: |
+          set -euxo pipefail
+
+          sudo apt update -qq && sudo apt install -yqq \
+            curl \
+            jq \
+            squashfs-tools \
+            xz-utils \
+            gawk
+
+      - name: build release artifacts
+        working-directory: ./sysext-bakery
+        run: |
+          ./build.sh
