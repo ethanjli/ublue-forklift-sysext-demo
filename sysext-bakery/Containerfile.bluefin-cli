@@ -7,22 +7,19 @@
 # So instead (as a quick-and-dirty proof-of-concept) we manually add the packages added by
 # bluefin-cli, except for commands already available on ublue-os/base-main:
 #FROM alpine:latest as original
-#RUN apk -U add \
-#  atuin \
-#  brew \
-#  delta \
-#  eza \
-#  fd \
-#  fish \
-#  rclone \
-#  ripgrep \
-#  starship \
-#  zoxide \
-#  zsh
-
 FROM cgr.dev/chainguard/wolfi-base:latest as original
 RUN apk -U add \
-  rclone
+  atuin \
+  brew \
+  delta \
+  eza \
+  fd \
+  fish \
+  rclone \
+  ripgrep \
+  starship \
+  zoxide \
+  zsh
 
 FROM alpine:latest as flatwrapped
 RUN apk -U add \
