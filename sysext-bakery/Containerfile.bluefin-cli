@@ -4,9 +4,10 @@
 #FROM ghcr.io/ublue-os/wolfi-toolbox:latest as original
 #FROM ghcr.io/ublue-os/bluefin-cli:latest as original
 
-# So instead (as a quick-and-dirty proof-of-concept) we manually add the packages added by
-# bluefin-cli, except for commands already available on ublue-os/base-main:
+# So instead (as a quick-and-dirty proof-of-concept) we manually add the packages curated by
+# bluefin-cli over alpine, except for commands already available on ublue-os/base-main:
 #FROM alpine:latest as original
+
 FROM cgr.dev/chainguard/wolfi-base:latest as original
 RUN apk -U add \
   atuin \
@@ -21,13 +22,12 @@ RUN apk -U add \
   zoxide \
   zsh
 
-FROM cgr.dev/chainguard/wolfi-base:latest as flatwrapped
+FROM alpine:latest as flixed
 RUN apk -U add \
   bubblewrap \
   bash \
   coreutils \
-  btrfs-progs e2fsprogs e2fsprogs-extra
-  # We don't install squashfs-tools because it's not available on wolfi!
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 # /home is needed for brew:
@@ -35,10 +35,10 @@ COPY --from=original /home /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
 COPY --from=original /sbin /tmp/original/sbin
 COPY --from=original /usr /tmp/original/usr
-COPY flatwrap.sh bake.sh .
+COPY flix.sh bake.sh .
 RUN \
-  OS="_any" ARCH="" RELOAD="0" KEEP="1" FORMAT="btrfs" \
-  ./flatwrap.sh /tmp/original bluefin-cli \
+  OS="_any" ARCH="" RELOAD="0" KEEP="1" \
+  ./flix.sh /tmp/original bluefin-cli \
     /usr/bin/atuin \
     /usr/bin/delta \
     /usr/bin/eza \
@@ -52,5 +52,5 @@ RUN \
     /home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew
 
 FROM scratch
-COPY --from=flatwrapped bluefin-cli/usr /usr
+COPY --from=flixed bluefin-cli/usr /usr
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.bluefin-cli
