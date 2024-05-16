@@ -123,6 +123,8 @@ GitHub/GitLab/etc. to prevent permanent loss of your changes.
 
 To modify your local copy of the pallet, you can use various subcommands of `forklift plt`, e.g.:
 
+- To enable the `bluefin-cli` package deployment (which makes the `bluefin-cli` sysext available to
+  systemd), you can run `forklift plt enable-depl bluefin-cli`.
 - To disable the `dive` package deployment (which makes the `dive` sysext available to systemd), you
   can run `forklift plt disable-depl dive`. To re-enable the package deployment, you can run
   `forklift plt enable-depl dive`.
@@ -134,8 +136,8 @@ To modify your local copy of the pallet, you can use various subcommands of `for
 Instead of running these subcommands and then running `forklift plt stage` to stage your modified
 pallet, you can enable an optional `--stage` flag in these subcommands to immediately stage the
 pallet after modifying the pallet. For example, you can run
-`forklift plt disable-depl --stage dive` and reboot, after which the `dive` sysext will no longer be
-available to systemd. So you can think of `forklift plt enable-depl --stage` and
+`forklift plt enable-depl --stage bluefin-cli` and reboot, after which the `bluefin-cli` sysext will
+become available to systemd. So you can think of `forklift plt enable-depl --stage` and
 `forklift plt disable-depl --stage` as the rough (but more verbose) equivalents of
 `systemctl enable` and `systemctl disable`.
 
