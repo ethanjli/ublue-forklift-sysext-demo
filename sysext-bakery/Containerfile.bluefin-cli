@@ -20,7 +20,7 @@
 #  zoxide \
 #  zsh
 
-FROM cgr.dev/chainguard/caddy:latest as original
+FROM cgr.dev/chainguard/wolfi-base:latest as original
 RUN apk -U add \
   rclone
 
@@ -39,7 +39,6 @@ COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
   ./flatwrap.sh /tmp/original bluefin-cli \
-    /usr/bin/caddy \
     /usr/bin/rclone
     # Temporarily disabled for troubleshooting:
     #/usr/bin/atuin
