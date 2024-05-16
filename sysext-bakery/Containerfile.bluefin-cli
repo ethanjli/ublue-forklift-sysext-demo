@@ -1,13 +1,26 @@
-# Note: for some reason, ghcr.io/ublue-os/wolfi-toolbox does something which prevents flatwrapped
-# binaries from working:
+# Note: for some reason, ghcr.io/chainguard/wolfi-base does something which prevents flatwrapped
+# binaries from working in this demo, so none of these work:
+#FROM cgr.dev/chainguard/wolfi-base:latest as original
 #FROM ghcr.io/ublue-os/wolfi-toolbox:latest as original
 #FROM ghcr.io/ublue-os/bluefin-cli:latest as original
 
 # So instead (as a quick-and-dirty proof-of-concept) we manually add the packages added by
 # bluefin-cli, except for commands already available on ublue-os/base-main:
-FROM cgr.dev/chainguard/wolfi-base:latest as original
-RUN apk -U add \
-  atuin
+#FROM alpine:latest as original
+#RUN apk -U add \
+#  atuin \
+#  brew \
+#  delta \
+#  eza \
+#  fd \
+#  fish \
+#  rclone \
+#  ripgrep \
+#  starship \
+#  zoxide \
+#  zsh
+
+FROM cgr.dev/chainguard/caddy:latest as original
 
 FROM alpine:latest as flatwrapped
 RUN apk -U add \
@@ -24,8 +37,9 @@ COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
   ./flatwrap.sh /tmp/original bluefin-cli \
-    /usr/bin/atuin
+    /usr/bin/caddy
     # Temporarily disabled for troubleshooting:
+    #/usr/bin/atuin
     #/usr/bin/atuin \
     #/usr/bin/delta \
     #/usr/bin/eza \
