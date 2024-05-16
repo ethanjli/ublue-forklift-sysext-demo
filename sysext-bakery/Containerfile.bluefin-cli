@@ -38,7 +38,6 @@ COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
   ./flatwrap.sh /tmp/original bluefin-cli \
-    /usr/bin/atuin
     /usr/bin/atuin \
     /usr/bin/delta \
     /usr/bin/eza \
