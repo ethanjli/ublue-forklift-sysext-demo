@@ -1,8 +1,23 @@
-# Temporarily disabled for troubleshooting:
+# Note: for some reason, ghcr.io/ublue-os/wolfi-toolbox does something which prevents flatwrapped
+# binaries from working:
+#FROM ghcr.io/ublue-os/wolfi-toolbox:latest as original
 #FROM ghcr.io/ublue-os/bluefin-cli:latest as original
-# Temporarily added for troubleshooting:
-FROM ghcr.io/ublue-os/wolfi-toolbox:latest as original
-RUN apk -U add atuin
+
+# So instead (as a quick-and-dirty proof-of-concept) we manually add the packages added by
+# bluefin-cli, except for commands already available on ublue-os/base-main:
+FROM cgr.dev/chainguard/wolfi-base:latest as original
+RUN apk -U add \
+  atuin \
+  brew \
+  delta \
+  eza \
+  fd \
+  fish \
+  rclone \
+  ripgrep \
+  starship \
+  zoxide \
+  zsh
 
 FROM alpine:latest as flatwrapped
 RUN apk -U add \
