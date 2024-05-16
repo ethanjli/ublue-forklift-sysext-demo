@@ -84,8 +84,8 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 
 if [ -S /var/run/docker.sock ]; then
   echo "Updating Docker Compose apps..."
-  forklift stage apply
+  forklift --stage-store="$FORKLIFT_STAGE_STORE" stage apply
 else
   echo "Skipping any updates to Docker Compose apps, because Docker does not appear to be installed!"
-  # TODO(ethanjli): run `forklift stage apply --no-docker` or something
+  # TODO(ethanjli): run `forklift --stage-store="$FORKLIFT_STAGE_STORE" stage apply --no-docker` or something
 fi
