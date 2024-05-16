@@ -16,8 +16,7 @@ COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
   ./flatwrap.sh /tmp/original neovim \
-    /usr/bin/nvim \
-    # End
+    /usr/bin/nvim
 
 FROM scratch
 COPY --from=flatwrapped neovim/usr /usr
