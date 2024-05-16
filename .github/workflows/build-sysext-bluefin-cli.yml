@@ -1,6 +1,8 @@
 name: build-sysext-bluefin-cli
 
 on:
+  schedule:
+    - cron: '0 8,20 * * *'  # 8am and 8pm every day
   pull_request:
     branches:
       - main
