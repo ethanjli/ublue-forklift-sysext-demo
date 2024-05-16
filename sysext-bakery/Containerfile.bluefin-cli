@@ -1,0 +1,35 @@
+FROM ghcr.io/ublue-os/bluefin-cli:latest as original
+
+FROM alpine:latest as flatwrapped
+RUN apk -U add \
+  bubblewrap \
+  bash \
+  coreutils \
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
+COPY --from=original /bin /tmp/original/bin
+COPY --from=original /etc /tmp/original/etc
+COPY --from=original /lib /tmp/original/lib
+COPY --from=original /sbin /tmp/original/sbin
+COPY --from=original /usr /tmp/original/usr
+RUN ls /tmp/original/
+COPY flatwrap.sh bake.sh .
+RUN \
+  OS="_any" ARCH="" RELOAD="0" KEEP="1" \
+  ./flatwrap.sh /tmp/original bluefin-cli \
+    /usr/bin/atuin \
+    /usr/bin/delta \
+    /usr/bin/gawk \
+    /usr/bin/eza \
+    /usr/bin/fd \
+    /usr/bin/fish \
+    /usr/bin/fzf \
+    /usr/bin/rclone \
+    /usr/bin/rg \
+    /usr/bin/starship \
+    /usr/bin/zoxide \
+    /bin/zsh:/usr/bin/zsh \
+    /home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew \
+
+FROM scratch
+COPY --from=flatwrapped bluefin-cli/usr /usr
+COPY extension-release-any /usr/lib/extension-release.d/extension-release.bluefin-cli
