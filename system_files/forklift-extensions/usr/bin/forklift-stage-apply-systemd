@@ -84,7 +84,6 @@ systemctl restart --no-block sockets.target timers.target multi-user.target defa
 
 systemctl start sockets.target # block until sockets.target is done before checking for /var/run/docker.sock
 if [ -S /var/run/docker.sock ]; then
-  systemctl start docker.service || true
   echo "Updating Docker Compose apps..."
   forklift --stage-store="$FORKLIFT_STAGE_STORE" stage apply
 else

@@ -65,8 +65,7 @@ do not exist yet, by looking for it in the list of system fonts when trying to s
 font in the Ptyxis terminal (Ptyxis is available if you're using the Bluefin-based OS image provided
 by this repo).
 
-Next, you should reboot (or if you're *really* impatient and don't want to reboot, run
-`sudo forklift-stage-apply-systemd`). Then you will see new system extensions if you run
+Next, you should reboot. Then you will see new system extensions if you run
 `systemd-sysext status`. You will also see that:
 
 - A new service named `hello-world-extension` ran successfully, if you check its status with
@@ -139,6 +138,9 @@ pallet after modifying the pallet. For example, you can run
 available to systemd. So you can think of `forklift plt enable-depl --stage` and
 `forklift plt disable-depl --stage` as the rough (but more verbose) equivalents of
 `systemctl enable` and `systemctl disable`.
+
+After staging the pallet, if you want to preview your changes without rebooting you can run
+`sudo forklift-stage-apply-systemd`.
 
 ### By editing YAML files
 
