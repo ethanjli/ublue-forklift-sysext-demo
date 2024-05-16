@@ -28,7 +28,7 @@ RUN \
     /usr/bin/starship \
     /usr/bin/zoxide \
     /bin/zsh:/usr/bin/zsh \
-    /home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew \
+    /home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew
 
 FROM scratch
 COPY --from=flatwrapped bluefin-cli/usr /usr
