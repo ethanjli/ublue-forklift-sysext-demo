@@ -95,7 +95,7 @@ Next, you should reboot (or if you're *really* impatient and don't want to reboo
   `ls /usr/share/nvim/runtime/doc`; instead, you can find them by running
   `ls /usr/local/neovim/usr/share/nvim/runtime/doc`. And if you run
   `readelf -a /usr/local/neovim/usr/bin/nvim | grep -i musl`, you can see that `nvim` was compiled
-  for use with musl rather than glibc.
+  for dynamic library loading with musl rather than glibc.
 - If you open the Ptyxis terminal settings (assuming you're using the Bluefin-based OS image
   provided by this repo) and open the window to set a custom font, you will see the "JetBrains Mono"
   fonts appear in the font selection window.
@@ -290,16 +290,16 @@ part of a system extension directory assembled and exported by Forklift.
 Unlike `docker`, `dive`, and `crane`, [`nvim`](https://github.com/neovim/neovim) is not available as
 a statically-linked binary, so it depends on system libraries. For example, trying to run the
 binaries from [Neovim's GitHub Releases](https://github.com/neovim/neovim/releases) on Alpine Linux
-will not work due to the lack of glibc; instead, Alpine Linux's package for Neovim needs to be
-installed to use Neovim on Alpine Linux. The opposite is also true: trying to run a Neovim binary
-from Alpine Linux on a host without musl will also not work.
+will not work due to the lack of glibc on the system; instead, Alpine Linux's package for Neovim
+needs to be installed to use Neovim on Alpine Linux. The opposite is also true: trying to run a
+Neovim binary from Alpine Linux on a host without musl libraries will also not work.
 
 This repository includes a GitHub Actions workflow to automatically build a multi-arch container
 image which includes a `.raw` system extension image file with `nvim`, using
 [flatwrap](https://github.com/flatcar/sysext-bakery/blob/main/flatwrap.sh) with
 [Alpine Linux's neovim package](https://pkgs.alpinelinux.org/package/edge/community/x86/neovim)
-(which is linked against musl) to sandbox `nvim` in such a way that it work without any problems as
-a sysext on glibc-based systems.
+(which is dynamically linked against musl) to sandbox `nvim` in such a way that it work without any
+problems as a sysext on glibc-based systems.
 [Alpine Linux's neovim-doc package](https://pkgs.alpinelinux.org/package/edge/community/x86/neovim-doc)
 is also included in the sandbox with `nvim` so that `nvim` can access the associated documentation
 files without having those documentation files in the usual location where they would be if
