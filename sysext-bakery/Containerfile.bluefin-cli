@@ -21,7 +21,7 @@ RUN apk -U add \
   zoxide \
   zsh
 
-FROM alpine:latest as flatwrapped
+FROM cgr.dev/chainguard/wolfi-base:latest as flatwrapped
 RUN apk -U add \
   bubblewrap \
   bash \
@@ -30,7 +30,7 @@ RUN apk -U add \
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 # Needed for brew:
-COPY --from=original /bin /tmp/original/home
+COPY --from=original /home /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
 COPY --from=original /sbin /tmp/original/sbin
 COPY --from=original /usr /tmp/original/usr
