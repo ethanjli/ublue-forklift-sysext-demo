@@ -21,6 +21,8 @@
 #  zsh
 
 FROM cgr.dev/chainguard/caddy:latest as original
+RUN apk -U add \
+  rclone
 
 FROM alpine:latest as flatwrapped
 RUN apk -U add \
@@ -37,7 +39,8 @@ COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
   ./flatwrap.sh /tmp/original bluefin-cli \
-    /usr/bin/caddy
+    /usr/bin/caddy \
+    /usr/bin/rclone
     # Temporarily disabled for troubleshooting:
     #/usr/bin/atuin
     #/usr/bin/atuin \
