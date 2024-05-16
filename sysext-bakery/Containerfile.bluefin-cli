@@ -24,6 +24,7 @@ RUN apk -U add \
 
 FROM alpine:latest as flixed
 RUN apk -U add \
+  patchelf \
   bubblewrap \
   bash \
   coreutils \
