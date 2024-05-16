@@ -7,17 +7,7 @@
 # bluefin-cli, except for commands already available on ublue-os/base-main:
 FROM cgr.dev/chainguard/wolfi-base:latest as original
 RUN apk -U add \
-  atuin \
-  brew \
-  delta \
-  eza \
-  fd \
-  fish \
-  rclone \
-  ripgrep \
-  starship \
-  zoxide \
-  zsh
+  atuin
 
 FROM alpine:latest as flatwrapped
 RUN apk -U add \
@@ -38,18 +28,15 @@ RUN \
     # Temporarily disabled for troubleshooting:
     #/usr/bin/atuin \
     #/usr/bin/delta \
-    #/usr/bin/gawk \
     #/usr/bin/eza \
     #/usr/bin/fd \
     #/usr/bin/fish \
-    #/usr/bin/fzf \
     #/usr/bin/rclone \
     #/usr/bin/rg \
     #/usr/bin/starship \
     #/usr/bin/zoxide \
     #/bin/zsh:/usr/bin/zsh \
-    #/home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew \
-    # End
+    #/home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew
 
 FROM scratch
 COPY --from=flatwrapped bluefin-cli/usr /usr
