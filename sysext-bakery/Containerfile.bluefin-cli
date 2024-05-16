@@ -1,7 +1,7 @@
 # Temporarily disabled for troubleshooting:
 #FROM ghcr.io/ublue-os/bluefin-cli:latest as original
 # Temporarily added for troubleshooting:
-FROM alpine:latest as original
+FROM ghcr.io/ublue-os/wolfi-toolbox:latest as original
 RUN apk -U add atuin
 
 FROM alpine:latest as flatwrapped
