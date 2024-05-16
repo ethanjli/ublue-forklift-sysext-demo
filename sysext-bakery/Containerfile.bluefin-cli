@@ -26,17 +26,18 @@ RUN apk -U add \
   bubblewrap \
   bash \
   coreutils \
-  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
+  btrfs-progs e2fsprogs e2fsprogs-extra
+  # We don't install squashfs-tools because it's not available on wolfi!
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
-# Needed for brew:
+# /home is needed for brew:
 COPY --from=original /home /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
 COPY --from=original /sbin /tmp/original/sbin
 COPY --from=original /usr /tmp/original/usr
 COPY flatwrap.sh bake.sh .
 RUN \
-  OS="_any" ARCH="" RELOAD="0" KEEP="1" \
+  OS="_any" ARCH="" RELOAD="0" KEEP="1" FORMAT="btrfs" \
   ./flatwrap.sh /tmp/original bluefin-cli \
     /usr/bin/atuin \
     /usr/bin/delta \
