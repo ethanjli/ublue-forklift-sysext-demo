@@ -1,4 +1,4 @@
-name: Build sysexts as OCI container images
+name: build-sysexts
 
 on:
   push:

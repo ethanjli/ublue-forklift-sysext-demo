@@ -1,4 +1,4 @@
-name: Build a system extension directory distributed as a OCI container image
+name: build-sysext
 
 on:
   workflow_call:

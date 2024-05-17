@@ -1,4 +1,4 @@
-name: Build sysexts based on images with scheduled rebuilds
+name: build-sysexts-scheduled
 
 on:
   schedule:
