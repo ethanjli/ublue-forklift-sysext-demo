@@ -1,4 +1,4 @@
-name: build-sysext-bluefin-cli
+name: Build sysexts as OCI container images
 
 on:
   push:
@@ -38,5 +38,8 @@ jobs:
           - bluefin-cli
           - neovim
           - ublue-dx-fonts
-    with:
-      sysext_name: ${{ matrix.sysext_name }}
+    steps:
+      - name: Debug
+        run: echo "${{ matrix.sysext_name }}"
+    #with:
+      #sysext_name: ${{ matrix.sysext_name }}

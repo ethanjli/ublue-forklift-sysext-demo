@@ -1,4 +1,4 @@
-name: build-sysext-bluefin-cli
+name: Build sysexts based on images with scheduled rebuilds
 
 on:
   schedule:

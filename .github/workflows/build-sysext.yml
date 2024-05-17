@@ -1,4 +1,4 @@
-name: Build system extension directory as a Docker container
+name: Build a system extension directory distributed as a OCI container image
 
 on:
   workflow_call:
@@ -18,7 +18,7 @@ env:
   PUSH_IMAGE: ${{ (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork) || github.event_name == 'push' || github.event_name == 'push tag' }}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.sysext_name }}
   cancel-in-progress: true
 
 jobs:
