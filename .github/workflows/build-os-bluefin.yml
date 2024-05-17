@@ -32,5 +32,5 @@ jobs:
     uses: ./.github/workflows/build-os.yml
     secrets: inherit
     with:
-      brand_name: bluefin
+      variant_name: bluefin
       fedora_version: 39

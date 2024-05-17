@@ -32,5 +32,5 @@ jobs:
     uses: ./.github/workflows/build-os.yml
     secrets: inherit
     with:
-      brand_name: base
+      variant_name: base
       fedora_version: 39
