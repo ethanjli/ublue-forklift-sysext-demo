@@ -1,0 +1,42 @@
+name: build-sysext-bluefin-cli
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'beta'
+      - 'stable'
+    paths:
+      - '.github/workflows/*'
+      - 'sysext-bakery/**'
+      - '!sysext-bakery/README.md'
+      - '!sysext-bakery/**/README.md'
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - '.github/workflows/*'
+      - 'sysext-bakery/**'
+      - '!sysext-bakery/README.md'
+      - '!sysext-bakery/**/README.md'
+  merge_group:
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: 'Git ref (optional)'
+        required: false
+
+jobs:
+  build:
+    name: build
+    uses: ./.github/workflows/build-sysext.yml
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        sysext_name:
+          - bluefin-cli
+          - neovim
+          - ublue-dx-fonts
+    with:
+      sysext_name: ${{ matrix.sysext_name }}

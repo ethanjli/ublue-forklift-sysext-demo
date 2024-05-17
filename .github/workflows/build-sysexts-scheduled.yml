@@ -1,0 +1,18 @@
+name: build-sysext-bluefin-cli
+
+on:
+  schedule:
+    - cron: '0 8,20 * * *'  # 8am and 8pm every day
+
+jobs:
+  build:
+    name: build
+    uses: ./.github/workflows/build-sysext.yml
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        sysext_name:
+          - bluefin-cli
+    with:
+      sysext_name: ${{ matrix.sysext_name }}

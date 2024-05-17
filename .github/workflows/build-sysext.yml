@@ -1,37 +1,16 @@
-name: build-sysext-bluefin-cli
+name: Build system extension directory as a Docker container
 
 on:
-  schedule:
-    - cron: '0 8,20 * * *'  # 8am and 8pm every day
-  push:
-    branches:
-      - 'main'
-      - 'beta'
-      - 'stable'
-    paths:
-      - '.github/workflows/*'
-      - 'sysext-bakery/**'
-      - '!sysext-bakery/README.md'
-      - '!sysext-bakery/**/README.md'
-  pull_request:
-    branches:
-      - 'main'
-    paths:
-      - '.github/workflows/*'
-      - 'sysext-bakery/**'
-      - '!sysext-bakery/README.md'
-      - '!sysext-bakery/**/README.md'
-  merge_group:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      git-ref:
-        description: 'Git ref (optional)'
-        required: false
+      sysext_name:
+        description: 'The name of the sysext to build'
+        required: true
+        type: string
 
 env:
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
-  SYSEXT_NAME: 'bluefin-cli'
-  IMAGE_NAME: 'sysext-dir-bluefin-cli'
+  IMAGE_NAME: 'sysext-dir-${{ inputs.sysext_name }}'
   MAIN_BRANCH: 'main' # pushing to this branch will update the "edge" tag on the image
   BETA_BRANCH: 'beta' # pushing to this branch will update the "beta" tag on the image
   STABLE_BRANCH: 'stable' # pushing to this branch will update the "stable" tag on the image
@@ -93,14 +72,14 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./sysext-bakery
-          file: ./sysext-bakery/Containerfile.${{ env.SYSEXT_NAME }}
+          file: ./sysext-bakery/Containerfile.${{ inputs.sysext_name }}
           pull: true
           push: ${{ (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork) || github.event_name == 'push' || github.event_name == 'push tag' }}
           platforms: ${{ matrix.platform }}
           tags: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=${{ env.SYSEXT_NAME }}-build-${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=${{ env.SYSEXT_NAME }}-build-${{ matrix.platform }}
+          cache-from: type=gha,scope=${{ env.inputs.sysext_name }}-build-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ env.inputs.sysext_name }}-build-${{ matrix.platform }}
           outputs: type=image,name=${{ steps.image_registry_case.outputs.lowercase }},push-by-digest=true,name-canonical=true,push=${{ env.PUSH_IMAGE }}
 
       - name: Export digest
