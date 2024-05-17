@@ -1,0 +1,44 @@
+name: build-sysexts
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'beta'
+      - 'stable'
+    paths:
+      - '.github/workflows/build-sysext*.yml'
+      - 'sysext-bakery/**'
+      - '!sysext-bakery/README.md'
+      - '!sysext-bakery/**/README.md'
+  pull_request:
+    paths:
+      - '.github/workflows/build-sysext*.yml'
+      - 'sysext-bakery/**'
+      - '!sysext-bakery/README.md'
+      - '!sysext-bakery/**/README.md'
+  merge_group:
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: 'Git ref (optional)'
+        required: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        sysext_name:
+          - bluefin-cli-alpine-flatwrap
+          - bluefin-cli-wolfi-flatwrap
+          - bluefin-cli-wolfi-flix
+          - neovim
+          - ublue-dx-fonts
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-sysext.yml
+    secrets: inherit
+    with:
+      sysext_name: ${{ matrix.sysext_name }}

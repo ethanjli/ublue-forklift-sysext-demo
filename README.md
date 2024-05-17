@@ -19,9 +19,9 @@ anything serious!
 ## Set up your VM
 
 You will need to download the latest version of the installer ISO. To do so, go to
-<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-base.yml> (for a
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-os-base.yml> (for a
 CLI-only OS image) or
-<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-bluefin.yml> (for an
+<https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-os-bluefin.yml> (for an
 OS image with a GNOME desktop), click on the most recent workflow run which was triggered by the
 `main` branch (not any feature branches! the OS images built from feature branches are
 works-in-progress which are probably broken in various ways) and which completed successfully, and
@@ -123,6 +123,9 @@ GitHub/GitLab/etc. to prevent permanent loss of your changes.
 
 To modify your local copy of the pallet, you can use various subcommands of `forklift plt`, e.g.:
 
+- To enable the `bluefin-cli-wolfi-flix` package deployment (which makes the flix-sandboxed
+  Wolfi-based variant of the `bluefin-cli` sysext available to systemd), you can run
+  `forklift plt enable-depl bluefin-cli-wolfi-flix`.
 - To disable the `dive` package deployment (which makes the `dive` sysext available to systemd), you
   can run `forklift plt disable-depl dive`. To re-enable the package deployment, you can run
   `forklift plt enable-depl dive`.
@@ -134,13 +137,20 @@ To modify your local copy of the pallet, you can use various subcommands of `for
 Instead of running these subcommands and then running `forklift plt stage` to stage your modified
 pallet, you can enable an optional `--stage` flag in these subcommands to immediately stage the
 pallet after modifying the pallet. For example, you can run
-`forklift plt disable-depl --stage dive` and reboot, after which the `dive` sysext will no longer be
-available to systemd. So you can think of `forklift plt enable-depl --stage` and
+`forklift plt enable-depl --stage bluefin-cli-wolfi-flix` and reboot, after which the `bluefin-cli`
+sysext will become available to systemd. So you can think of `forklift plt enable-depl --stage` and
 `forklift plt disable-depl --stage` as the rough (but more verbose) equivalents of
 `systemctl enable` and `systemctl disable`.
 
 After staging the pallet, if you want to preview your changes without rebooting you can run
-`sudo forklift-stage-apply-systemd`.
+`sudo forklift-stage-apply-systemd`. This should be safe to do for the following sysexts:
+
+- `bluefin-cli`, provided by any of the following package deployments: `bluefin-cli-wolfi-flix`,
+  `bluefin-cli-wolfi-flatwrap`, or `bluefin-cli-alpine-flatwrap`.
+- `crane`
+- `dive`
+- `neovim`
+- `ublue-dx-fonts`
 
 ### By editing YAML files
 

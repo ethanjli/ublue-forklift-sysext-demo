@@ -1,0 +1,22 @@
+name: build-sysexts-scheduled
+
+on:
+  schedule:
+    - cron: '0 8,20 * * *'  # 8am and 8pm every day
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        sysext_name:
+          - bluefin-cli-alpine-flatwrap
+          - bluefin-cli-wolfi-flatwrap
+          - bluefin-cli-wolfi-flix
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-sysext.yml
+    secrets: inherit
+    with:
+      sysext_name: ${{ matrix.sysext_name }}

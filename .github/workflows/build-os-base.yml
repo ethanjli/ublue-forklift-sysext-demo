@@ -1,0 +1,36 @@
+---
+name: build-os-base
+on:
+  schedule:
+    - cron: '05 10 * * *'  # 10:05am UTC everyday
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - 'sysext-bakery/**'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+      - 'sysext-bakery/**'
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    uses: ./.github/workflows/build-os.yml
+    secrets: inherit
+    with:
+      variant_name: base
+      fedora_version: 39
