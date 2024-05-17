@@ -1,7 +1,6 @@
 FROM alpine:latest as original
 RUN apk -U add \
   atuin \
-  brew \
   delta \
   eza \
   fd \
@@ -20,8 +19,6 @@ RUN apk -U add \
   squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
-# /home is needed for brew:
-COPY --from=original /home /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
 COPY --from=original /sbin /tmp/original/sbin
 COPY --from=original /usr /tmp/original/usr
@@ -38,8 +35,7 @@ RUN \
     /usr/bin/rg \
     /usr/bin/starship \
     /usr/bin/zoxide \
-    /bin/zsh:/usr/bin/zsh \
-    /home/linuxbrew/.linuxbrew/bin/brew:/usr/bin/brew
+    /bin/zsh:/usr/bin/zsh
 
 FROM scratch
 COPY --from=sandboxed bluefin-cli/usr /usr
