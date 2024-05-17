@@ -7,15 +7,13 @@ on:
       - 'beta'
       - 'stable'
     paths:
-      - '.github/workflows/*'
+      - '.github/workflows/build-sysext*.yml'
       - 'sysext-bakery/**'
       - '!sysext-bakery/README.md'
       - '!sysext-bakery/**/README.md'
   pull_request:
-    branches:
-      - 'main'
     paths:
-      - '.github/workflows/*'
+      - '.github/workflows/build-sysext*.yml'
       - 'sysext-bakery/**'
       - '!sysext-bakery/README.md'
       - '!sysext-bakery/**/README.md'
@@ -28,7 +26,7 @@ on:
 
 jobs:
   build:
-    name: build
+    runs-on: ubuntu-latest
     uses: ./.github/workflows/build-sysext.yml
     secrets: inherit
     strategy:
