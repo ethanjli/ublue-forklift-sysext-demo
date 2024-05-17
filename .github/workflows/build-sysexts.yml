@@ -27,7 +27,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/build-sysext.yml
     secrets: inherit
     strategy:
       fail-fast: false
@@ -39,5 +38,6 @@ jobs:
     steps:
       - name: Debug
         run: echo "${{ matrix.sysext_name }}"
+    #uses: ./.github/workflows/build-sysext.yml
     #with:
       #sysext_name: ${{ matrix.sysext_name }}
