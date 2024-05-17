@@ -5,6 +5,7 @@ RUN apk -U add \
   eza \
   fd \
   fish \
+  less \
   rclone \
   ripgrep \
   starship \
