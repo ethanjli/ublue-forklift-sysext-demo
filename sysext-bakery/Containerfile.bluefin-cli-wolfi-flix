@@ -5,7 +5,8 @@ RUN apk -U add \
   patchelf \
   grep \
   bash \
-  coreutils
+  coreutils \
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 # /home is needed for brew:
