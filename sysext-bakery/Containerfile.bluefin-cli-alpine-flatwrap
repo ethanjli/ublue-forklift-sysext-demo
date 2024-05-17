@@ -1,9 +1,19 @@
-FROM ghcr.io/ublue-os/bluefin-cli:latest as original
-
-FROM alpine:latest as flixed
+FROM alpine:latest as original
 RUN apk -U add \
-  patchelf \
-  grep \
+  atuin \
+  brew \
+  delta \
+  eza \
+  fd \
+  fish \
+  rclone \
+  ripgrep \
+  starship \
+  zoxide \
+  zsh
+
+FROM alpine:latest as sandboxed
+RUN apk -U add \
   bubblewrap \
   bash \
   coreutils \
@@ -13,17 +23,12 @@ COPY --from=original /etc /tmp/original/etc
 # /home is needed for brew:
 COPY --from=original /home /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
-# /lib64 is needed by flix.sh:
-COPY --from=original /lib64 /tmp/original/lib64
 COPY --from=original /sbin /tmp/original/sbin
 COPY --from=original /usr /tmp/original/usr
-# Note: we use flix because flatwrap fails when the "original" layer is based on wolfi-base, for
-# some reason. Flatwrap works just fine on alpine, so that's mysterious. It may be a problem to
-# try to use brew, which is currently broken.
-COPY flix.sh bake.sh .
+COPY flatwrap.sh bake.sh .
 RUN \
   OS="_any" ARCH="" RELOAD="0" KEEP="1" \
-  ./flix.sh /tmp/original bluefin-cli \
+  ./flatwrap.sh /tmp/original bluefin-cli \
     /usr/bin/atuin \
     /usr/bin/delta \
     /usr/bin/eza \
@@ -37,5 +42,5 @@ RUN \
     /home/linuxbrew/.linuxbrew/bin/brew:/usr/bin/brew
 
 FROM scratch
-COPY --from=flixed bluefin-cli/usr /usr
+COPY --from=sandboxed bluefin-cli/usr /usr
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.bluefin-cli

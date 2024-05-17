@@ -10,7 +10,9 @@ jobs:
       fail-fast: false
       matrix:
         sysext_name:
-          - bluefin-cli
+          - bluefin-cli-alpine-flatwrap
+          - bluefin-cli-wolfi-flatwrap
+          - bluefin-cli-wolfi-flix
     permissions:
       contents: read
       packages: write

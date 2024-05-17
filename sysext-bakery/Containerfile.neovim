@@ -1,7 +1,7 @@
 FROM alpine:latest as original
 RUN apk -U add neovim neovim-doc
 
-FROM alpine:latest as flatwrapped
+FROM alpine:latest as sandboxed
 RUN apk -U add \
   bubblewrap \
   bash \
@@ -19,5 +19,5 @@ RUN \
     /usr/bin/nvim
 
 FROM scratch
-COPY --from=flatwrapped neovim/usr /usr
+COPY --from=sandboxed neovim/usr /usr
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.neovim
