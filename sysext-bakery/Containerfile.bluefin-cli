@@ -34,6 +34,7 @@ COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 # /home is needed for brew:
 COPY --from=original /home /tmp/original/home
+RUN ls -R /tmp/original/home
 COPY --from=original /lib /tmp/original/lib
 # /lib64 is needed by flix.sh:
 COPY --from=original /lib64 /tmp/original/lib64
@@ -52,8 +53,9 @@ RUN \
     /usr/bin/rg \
     /usr/bin/starship \
     /usr/bin/zoxide \
-    /bin/zsh:/usr/bin/zsh \
-    /home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew
+    /bin/zsh:/usr/bin/zsh
+    # Commented out because it doesn't work, for some reason:
+    #/home/homebrew/.linuxbrew/bin/brew:/usr/bin/brew
 
 FROM scratch
 COPY --from=flixed bluefin-cli/usr /usr
