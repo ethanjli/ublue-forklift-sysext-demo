@@ -6,13 +6,15 @@ on:
 
 jobs:
   build:
-    name: build
-    uses: ./.github/workflows/build-sysext.yml
-    secrets: inherit
     strategy:
       fail-fast: false
       matrix:
         sysext_name:
           - bluefin-cli
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-sysext.yml
+    secrets: inherit
     with:
       sysext_name: ${{ matrix.sysext_name }}
