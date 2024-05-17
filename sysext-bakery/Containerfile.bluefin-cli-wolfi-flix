@@ -4,7 +4,8 @@ FROM alpine:latest as sandboxed
 RUN apk -U add \
   patchelf \
   grep \
-  bash
+  bash \
+  coreutils
 COPY --from=original /bin /tmp/original/bin
 COPY --from=original /etc /tmp/original/etc
 # /home is needed for brew:
