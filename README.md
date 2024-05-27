@@ -45,14 +45,14 @@ That command will enable you to run `forklift pallet switch` (or `forklift palle
 
 This VM image comes without a Forklift pallet on your first boot, so that you can learn how to use a
 pallet. This guide will use the pallet at the latest commit from the `main` branch of
-[github.com/ethanjli/pallet-example-exports](https://github.com/ethanjli/pallet-example-exports)
+[github.com/forklift-run/pallet-example-sysexts](https://github.com/forklift-run/pallet-example-sysexts)
 and apply it to your VM in order to add a few sysexts+confexts to your VM, but you can make
 your own pallet and use it instead.
 
 To clone and stage the pallet, just run:
 
 ```
-forklift pallet switch github.com/ethanjli/pallet-example-exports@main
+forklift pallet switch github.com/forklift-run/pallet-example-sysexts@main
 ```
 
 (Note: if you hate typing, then you can replace `pallet` with `plt` - that's three entire keypresses
@@ -72,7 +72,7 @@ Next, you should reboot. Then you will see new system extensions if you run
   `systemctl status hello-world-extension.service`; and a script at
   `/usr/bin/hello-world-extension` now exists. This script and this systemd service are provided by
   the `hello-world` extension exported by the Forklift pallet
-  `github.com/ethanjli/pallet-example-exports`.
+  `github.com/forklift-run/pallet-example-sysexts`.
 - The `docker` systemd service is now running, if you check its status with
   `systemctl status docker.service`.
 - If you run `sudo docker image pull alpine:latest` and `sudo docker image ls`, you will have pulled
@@ -189,8 +189,8 @@ declared paths in a special *export directory* (more on this later). Forklift pa
 repositories are roughly analogous to [Go packages and modules](https://go.dev/ref/mod),
 respectively - except that Forklift packages/repositories cannot "import" or "include" other
 Forklift packages/repositories, and the path of the Forklift repository must be exactly the path of
-its Git repository (e.g. `github.com/ethanjli/example-exports` is valid, but
-`github.com/ethanjli/example-exports/v2` and `github.com/ethanjli/forklift-demos/example-exports`
+its Git repository (e.g. `github.com/ethanjli/example-sysexts` is valid, but
+`github.com/ethanjli/example-sysexts/v2` and `github.com/ethanjli/forklift-demos/example-sysexts`
 are not valid repository paths); these differences from the design of Go Modules keep Forklift's
 design simpler for Forklift's specific use-case.
 
@@ -269,8 +269,8 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
 
 ### `docker`
 
-The `github.com/ethanjli/pallet-example-exports` pallet is configured to make Forklift download the
-Docker system extension `.raw` image provided by
+The `github.com/forklift-run/pallet-example-sysexts` pallet is configured to make Forklift download
+the Docker system extension `.raw` image provided by
 [Flatcar Container Linux's sysext-bakery](https://github.com/flatcar/sysext-bakery/releases/tag/latest)
 and make it available to systemd-sysext; the pallet also adds a `docker-service-enablement`
 sysext & confext which enables the `docker.service` unit provided by the Docker sysext, and which
@@ -281,7 +281,7 @@ will work).
 
 Unlike `docker`,
 [`dive`](https://github.com/wagoodman/dive) does not have an associated pre-built system extension
-`.raw` image. Instead, the `github.com/ethanjli/pallet-example-exports` pallet is configured to
+`.raw` image. Instead, the `github.com/forklift-run/pallet-example-sysexts` pallet is configured to
 make Forklift download the amd64 binary from
 [GitHub Releases](https://github.com/wagoodman/dive/releases) and make it available to
 systemd-sysext as part of a system extension directory assembled and exported by Forklift.
@@ -292,7 +292,7 @@ Unlike `dive`,
 [`crane`](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)
 has an associated multi-arch Docker container image maintained by Chainguard at
 [cgr.dev/chainguard/crane](https://images.chainguard.dev/directory/image/crane/versions). The
-`github.com/ethanjli/pallet-example-exports` pallet is configured to make Forklift extract the
+`github.com/forklift-run/pallet-example-sysexts` pallet is configured to make Forklift extract the
 binary from either the `amd64` or `arm64` container image (which is automatically selected depending
 on the CPU architecture target of the `forklift` tool) and make it available to systemd-sysext as
 part of a system extension directory assembled and exported by Forklift.
@@ -317,7 +317,7 @@ is also included in the sandbox with `nvim` so that `nvim` can access the associ
 files without having those documentation files in the usual location where they would be if
 installed natively on the host.
 
-The `github.com/ethanjli/pallet-example-exports` pallet is configured to make Forklift
+The `github.com/forklift-run/pallet-example-sysexts` pallet is configured to make Forklift
 extract the system extension directory from either the `amd64` or `arm64` version of the resulting
 multi-arch container image (with the architecture automatically selected depending on the CPU
 architecture target of the `forklift` tool) and make it available to systemd-sysext.
@@ -329,8 +329,8 @@ configurations in `/usr/share/fontconfig/conf.avail`. This repository includes a
 workflow to automatically build a [multi-arch] container image with the necessary font and
 fontconfig files, from a Fedora base image with the relevant Fedora font packages also installed.
 
-The `github.com/ethanjli/pallet-example-exports` pallet is configured to make Forklift extract these
-font and fontconfig files from a `fedora`-based container image and make them available to
+The `github.com/forklift-run/pallet-example-sysexts` pallet is configured to make Forklift extract
+these font and fontconfig files from a `fedora`-based container image and make them available to
 systemd-sysext as part of a system extension directory assembled and exported by Forklift.
 
 # Caveats/Limitations
