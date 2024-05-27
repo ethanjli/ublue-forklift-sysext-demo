@@ -1,8 +1,11 @@
 #!/bin/bash -eux
 
 mkdir -p $HOME/.local/share/forklift/stages
-sudo mkdir -p /var/lib/forklift
-sudo mv $HOME/.local/share/forklift/stages /var/lib/forklift/stages
+sudo mkdir -p /var/lib/forklift/stages
+# TODO: maybe we should instead make a new "forklift" group which owns everything in
+# /var/lib/forklift?
+sudo chown $USER /var/lib/forklift/stages
+mkdir -p $HOME/.local/share/forklift/stages
 sudo systemctl enable --now bind-.local-share-forklift-stages@home-$USER.service
 
 ### Disable SELinux

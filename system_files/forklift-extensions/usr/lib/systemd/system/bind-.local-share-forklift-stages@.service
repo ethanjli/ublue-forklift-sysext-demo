@@ -20,11 +20,7 @@ ExecStartPre=mkdir -p $TARGET
 # ownership rather than the default of root ownership; this should probably be considered a kludge
 # to allow Forklift's own CLI design to stay simple, and we may be able to simplify things by
 # improving Forklift's design (idk):
-ExecStart=bash -c '\
-  export MOUNT_UID=$(stat -c "%%u" %I) && \
-  export MOUNT_GID=$(stat -c "%%g" %I) && \
-  mount -o bind,uid=$MOUNT_UID,gid=$MOUNT_GID $SOURCE $TARGET \
-'
+ExecStart=bash -c 'mount -o bind $SOURCE $TARGET'
 # Note: `umount -l` is not recommended in general (see https://unix.stackexchange.com/a/390057)
 # because it just removes the mounts from the namespace while writes to open files can continue:
 ExecStopPost=umount -l $TARGET
