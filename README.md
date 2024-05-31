@@ -2,7 +2,7 @@
 
 A simple demo of using Forklift to distribute & manage sysexts in a Fedora OSTree-based system
 
-# Introduction
+## Introduction
 
 This repository provides bootable OS container images (and corresponding installer ISOs) for a
 simple [ublue](https://universal-blue.org/)-based demo for integrating
