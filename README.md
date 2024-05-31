@@ -11,12 +11,12 @@ simple [ublue](https://universal-blue.org/)-based demo for integrating
 in a Fedora OSTree-based system. You should not use the images provided by this repository for
 anything serious!
 
-# Usage
+## Usage
 
 (the guide below refers to terms specific to Forklift; if you get confused, you can jump down to the
 [Explanation](#explanation) section to read a long summary of what those terms mean)
 
-## Set up your VM
+### Set up your VM
 
 You will need to download the latest version of the installer ISO. To do so, go to
 <https://github.com/ethanjli/ublue-forklift-sysext-demo/actions/workflows/build-os-base.yml> (for a
@@ -41,7 +41,7 @@ That command will enable you to run `forklift pallet switch` (or `forklift palle
 (described below) without having to use `sudo -E` and without having to set
 `FORKLIFT_STAGE_STORE=/var/lib/forklift/stages` as an environment variable for those commands.
 
-## Use a pallet
+### Use a pallet
 
 This VM image comes without a Forklift pallet on your first boot, so that you can learn how to use a
 pallet. This guide will use the pallet at the latest commit from the `main` branch of
@@ -108,7 +108,7 @@ state of your stage store by running `forklift stage show` and by running other 
 `forklift stage`; if you just run `forklift stage`, it will print some information about the
 available subcommands.
 
-## Modify a pallet and use it
+### Modify a pallet and use it
 
 You can edit your local copy of the pallet, which is at `~/.local/share/forklift/pallet`, either
 using the Forklift CLI or by directly editing YAML files in your local copy of the pallet; after
@@ -119,7 +119,7 @@ modifications to your pallet will all be deleted/overwritten and replaced with t
 switching to! If you are thinking of doing that, you should first commit and push your changes to
 GitHub/GitLab/etc. to prevent permanent loss of your changes.
 
-### With the Forklift CLI
+#### With the Forklift CLI
 
 To modify your local copy of the pallet, you can use various subcommands of `forklift plt`, e.g.:
 
@@ -152,7 +152,7 @@ After staging the pallet, if you want to preview your changes without rebooting 
 - `neovim`
 - `ublue-dx-fonts`
 
-### By editing YAML files
+#### By editing YAML files
 
 Alternatively, you can directly edit files in `~/.local/share/forklift/pallet` and then run
 `forklift plt stage` and reboot (or run `sudo forklift-stage-apply-systemd` to preview your
@@ -163,9 +163,9 @@ For example, to disable the `dive` sysext, add the line `disabled: true` to
 `forklift plt stage`, and reboot (or run `sudo forklift-stage-apply-systemd`); then `dive` will no
 longer be available on your system.
 
-# Explanation
+## Explanation
 
-## What is Forklift?
+### What is Forklift?
 
 Forklift is an experimental prototype tool primarily designed to make it simpler to build OS images
 (esp. custom images) of non-atomic Linux distros which need to provide a set of Docker Compose apps
@@ -194,7 +194,7 @@ its Git repository (e.g. `github.com/ethanjli/example-sysexts` is valid, but
 are not valid repository paths); these differences from the design of Go Modules keep Forklift's
 design simpler for Forklift's specific use-case.
 
-## What is a "pallet"?
+### What is a "pallet"?
 
 Forklift packages cannot be deployed/installed on their own. Instead, we create a *Forklift pallet*
 to declare the complete configuration of all Forklift packages which should be deployed on a
@@ -217,7 +217,7 @@ a read-only bind-mount between
 `/var/lib/forklift/stages/{id of the staged pallet bundle to apply}/exports/extensions` and
 `/var/lib/extensions` (and likewise for `/var/lib/confexts`) and refreshes systemd afterwards.
 
-## What does `forklift pallet switch` do?
+### What does `forklift pallet switch` do?
 
 The `forklift pallet switch` command is intended to feel roughly familiar/intuitive to people who
 also use `bootc switch` and/or `rpm-ostree rebase`. Behind-the-scenes, running
@@ -240,7 +240,7 @@ also use `bootc switch` and/or `rpm-ostree rebase`. Behind-the-scenes, running
    `/var/lib/forklift/stages` via a bind-mount created by the `just-setup-forklift-staging` script).
    This step can also be run on its own with `forklift pallet stage`.
 
-## What does the `forklift-stage-apply-systemd` script do?
+### What does the `forklift-stage-apply-systemd` script do?
 
 This script is run by the `forklift-stage-apply-systemd.service` systemd service as part of early
 (or early-ish) boot every time the OS boots up. It will:
@@ -265,9 +265,9 @@ This script is run by the `forklift-stage-apply-systemd.service` systemd service
    is not installed, so for now you should just avoid running `forklift stage prune-bundles` unless
    you want to delete everything in your stage store).
 
-## Where do `docker`, `dive`, etc., come from?
+### Where do `docker`, `dive`, etc., come from?
 
-### `docker`
+#### `docker`
 
 The `github.com/forklift-run/pallet-example-sysexts` pallet is configured to make Forklift download
 the Docker system extension `.raw` image provided by
@@ -277,7 +277,7 @@ sysext & confext which enables the `docker.service` unit provided by the Docker 
 prepares the host so that it can run Docker (namely, adding a `docker` group so that `docker.socket`
 will work).
 
-### `dive`
+#### `dive`
 
 Unlike `docker`,
 [`dive`](https://github.com/wagoodman/dive) does not have an associated pre-built system extension
@@ -286,7 +286,7 @@ make Forklift download the amd64 binary from
 [GitHub Releases](https://github.com/wagoodman/dive/releases) and make it available to
 systemd-sysext as part of a system extension directory assembled and exported by Forklift.
 
-### `crane`
+#### `crane`
 
 Unlike `dive`,
 [`crane`](https://github.com/google/go-containerregistry/blob/main/cmd/crane/README.md)
@@ -297,7 +297,7 @@ binary from either the `amd64` or `arm64` container image (which is automaticall
 on the CPU architecture target of the `forklift` tool) and make it available to systemd-sysext as
 part of a system extension directory assembled and exported by Forklift.
 
-### Neovim
+#### Neovim
 
 Unlike `docker`, `dive`, and `crane`, [`nvim`](https://github.com/neovim/neovim) is not available as
 a statically-linked binary, so it depends on system libraries. For example, trying to run the
@@ -322,7 +322,7 @@ extract the system extension directory from either the `amd64` or `arm64` versio
 multi-arch container image (with the architecture automatically selected depending on the CPU
 architecture target of the `forklift` tool) and make it available to systemd-sysext.
 
-### Fonts
+#### Fonts
 
 On Fedora, fonts installed with `dnf` into `/usr/share/fonts` come with corresponding fontconfig
 configurations in `/usr/share/fontconfig/conf.avail`. This repository includes a GitHub Actions
@@ -333,7 +333,7 @@ The `github.com/forklift-run/pallet-example-sysexts` pallet is configured to mak
 these font and fontconfig files from a `fedora`-based container image and make them available to
 systemd-sysext as part of a system extension directory assembled and exported by Forklift.
 
-# Caveats/Limitations
+## Caveats/Limitations
 
 Hacks/workarounds:
 
