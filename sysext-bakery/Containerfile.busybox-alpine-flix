@@ -1,0 +1,23 @@
+FROM alpine:latest as original
+
+FROM alpine:latest as sandboxed
+RUN apk -U add \
+  patchelf \
+  grep \
+  bash \
+  coreutils \
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
+COPY --from=original /bin /tmp/original/bin
+COPY --from=original /etc /tmp/original/etc
+COPY --from=original /lib /tmp/original/lib
+COPY --from=original /sbin /tmp/original/sbin
+COPY --from=original /usr /tmp/original/usr
+COPY flix.sh bake.sh .
+RUN \
+  OS="_any" ARCH="" RELOAD="0" KEEP="1" \
+  ./flix.sh /tmp/original busybox \
+    /bin/busybox:/usr/bin/busybox
+
+FROM scratch
+COPY --from=sandboxed busybox/usr /usr
+COPY extension-release-any /usr/lib/extension-release.d/extension-release.busybox

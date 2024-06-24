@@ -13,6 +13,7 @@ jobs:
           - bluefin-cli-alpine-flatwrap
           - bluefin-cli-wolfi-flatwrap
           - bluefin-cli-wolfi-flix
+          - busybox-alpine-flix
     permissions:
       contents: read
       packages: write

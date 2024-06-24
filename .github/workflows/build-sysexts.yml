@@ -33,6 +33,7 @@ jobs:
           - bluefin-cli-alpine-flatwrap
           - bluefin-cli-wolfi-flatwrap
           - bluefin-cli-wolfi-flix
+          - busybox-alpine-flix
           - neovim
           - ublue-dx-fonts
     permissions:

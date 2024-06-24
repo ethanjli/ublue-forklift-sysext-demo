@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash -x
 set -euo pipefail
 
 export ARCH="${ARCH-amd64}"
