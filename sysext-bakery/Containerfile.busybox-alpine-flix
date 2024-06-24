@@ -1,0 +1,24 @@
+FROM alpine:latest as original
+
+FROM alpine:latest as sandboxed
+RUN apk -U add \
+  bubblewrap \
+  bash \
+  coreutils \
+  squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
+COPY --from=original /bin /tmp/original/bin
+COPY --from=original /etc /tmp/original/etc
+COPY --from=original /lib /tmp/original/lib
+# /lib64 is needed by flix.sh:
+COPY --from=original /lib64 /tmp/original/lib64
+COPY --from=original /sbin /tmp/original/sbin
+COPY --from=original /usr /tmp/original/usr
+COPY flix.sh bake.sh .
+RUN \
+  OS="_any" ARCH="" RELOAD="0" KEEP="1" \
+  ./flix.sh /tmp/original busybox \
+    /bin/busybox:/usr/bin/busybox
+
+FROM scratch
+COPY --from=sandboxed busybox/usr /usr
+COPY extension-release-any /usr/lib/extension-release.d/extension-release.busybox
