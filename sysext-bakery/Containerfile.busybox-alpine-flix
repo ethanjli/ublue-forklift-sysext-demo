@@ -2,7 +2,8 @@ FROM alpine:latest as original
 
 FROM alpine:latest as sandboxed
 RUN apk -U add \
-  bubblewrap \
+  patchelf \
+  grep \
   bash \
   coreutils \
   squashfs-tools btrfs-progs e2fsprogs e2fsprogs-extra
