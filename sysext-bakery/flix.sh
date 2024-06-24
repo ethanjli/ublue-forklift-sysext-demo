@@ -75,10 +75,6 @@ find_deps() {
     NEW_RPATHS+=":/usr/local/${SYSEXTNAME}/${RP}"
   done
   patchelf --no-default-lib --set-rpath "${NEW_RPATHS}" "${FILE}"
-  # FIXME: delete the following three lines added for an experiment:
-  patchelf --no-default-lib --set-rpath "${NEW_RPATHS}" "${FILE}"
-  patchelf --no-default-lib --set-rpath "${NEW_RPATHS}" "${FILE}"
-  patchelf --no-default-lib --set-rpath "${NEW_RPATHS}" "${FILE}"
 }
 
 rm -rf "${SYSEXTNAME}"
