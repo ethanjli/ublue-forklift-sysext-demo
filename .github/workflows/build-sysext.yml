@@ -74,7 +74,7 @@ jobs:
           context: ./sysext-bakery
           file: ./sysext-bakery/Containerfile.${{ inputs.sysext_name }}
           pull: true
-          push: ${{ (github.event_name == 'pull_request' && !github.event.pull_request.head.repo.fork) || github.event_name == 'push' || github.event_name == 'push tag' }}
+          push: ${{ env.PUSH_IMAGE }}
           platforms: ${{ matrix.platform }}
           tags: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
           labels: ${{ steps.meta.outputs.labels }}

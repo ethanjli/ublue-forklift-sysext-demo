@@ -225,8 +225,7 @@ also use `bootc switch` and/or `rpm-ostree rebase`. Behind-the-scenes, running
 
 1. Clone the pallet as a Git repository to a local copy at `~/.local/share/forklift/pallet`, and
    check out the latest commit of the `main` branch; if anything was previously at
-   `~/.local/share/forklift/pallet`, it's deleted beforehand (note: I recently modified Forklift to
-   delete `~/.local/share/forklift/pallet/.git` after cloning, but I plan to revert that behavior).
+   `~/.local/share/forklift/pallet`, it's deleted beforehand.
    This step can also be run on its own with
    `forklift pallet clone --force {path of pallet}@{version query}`.
 2. Download any external Forklift repositories required by the pallet into
