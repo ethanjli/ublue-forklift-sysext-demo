@@ -146,7 +146,8 @@ After staging the pallet, if you want to preview your changes without rebooting 
 `sudo forklift-stage-apply-systemd`. This should be safe to do for the following sysexts:
 
 - `bluefin-cli`, provided by any of the following package deployments: `bluefin-cli-wolfi-flix`,
-  `bluefin-cli-wolfi-flatwrap`, or `bluefin-cli-alpine-flatwrap`.
+  `bluefin-cli-wolfi-flatwrap`, or `bluefin-cli-alpine-flatwrap`
+- `busybox`, provided by the `busybox-alpine-flix` package deployment
 - `crane`
 - `dive`
 - `neovim`
