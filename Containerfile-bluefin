@@ -53,6 +53,7 @@ COPY system_files/forklift-extensions /
 
 RUN mkdir -p /var/lib/alternatives && \
     bash -c ". /tmp/build/build.sh" && \
+    rpm-ostree install elfutils && \
     rm -rf /tmp/* /var/* && \
     mkdir -p /var/tmp && \
     chmod -R 1777 /var/tmp && \
