@@ -19,5 +19,5 @@ RUN \
     /bin/busybox:/usr/bin/busybox
 
 FROM scratch
-COPY --from=sandboxed busybox/usr /usr
+COPY --from=sandboxed busyboxbutwithareallylongsysextnametotrytobreakpatchelfhandlingofpathsjustasanexperiment/usr /usr
 COPY extension-release-any /usr/lib/extension-release.d/extension-release.busybox
